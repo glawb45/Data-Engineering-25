@@ -1,0 +1,17 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+.venv/
+
+# Data files
+data/
+
+# Airflow logs/db
+airflow/logs/
+airflow/airflow.db
+
+# System junk
+.DS_Store
