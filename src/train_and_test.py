@@ -79,7 +79,9 @@ def main():
             correct += 1
     accuracy = correct / max(len(test), 1)
 
-    print(f"Derived priors from {len(train)} training tokens; testing on {len(test)} tokens.")
+    print(
+        f"Derived priors from {len(train)} training tokens; testing on {len(test)} tokens."
+    )
     print(f"Accuracy: {accuracy:.3f}")
     # Show a few examples
     for obs, gold in test[:10]:

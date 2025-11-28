@@ -101,7 +101,7 @@ WORD_PATTERN = re.compile(r"\b[\w']+\b")
 
 
 def _build_reverse_channel(
-    channel: Dict[str, Dict[str, float]]
+    channel: Dict[str, Dict[str, float]],
 ) -> Dict[str, List[Tuple[str, float]]]:
     reverse: Dict[str, List[Tuple[str, float]]] = {}
     for modern, archaics in channel.items():
@@ -124,7 +124,8 @@ def _preserve_case(src: str, replacement: str) -> str:
 
 
 def build_normalizer(
-    priors: Dict[str, float] | None = None, channel: Dict[str, Dict[str, float]] = CHANNEL
+    priors: Dict[str, float] | None = None,
+    channel: Dict[str, Dict[str, float]] = CHANNEL,
 ):
     reverse_channel = _build_reverse_channel(CHANNEL)
     model_priors = priors or DEFAULT_MODERN_PRIORS
@@ -177,8 +178,10 @@ def main() -> None:
     args = parser.parse_args()
 
     input_path = Path(args.input)
-    output_path = Path(args.output) if args.output else input_path.with_suffix(
-        input_path.suffix + ".normalized.txt"
+    output_path = (
+        Path(args.output)
+        if args.output
+        else input_path.with_suffix(input_path.suffix + ".normalized.txt")
     )
 
     normalizer = build_normalizer()

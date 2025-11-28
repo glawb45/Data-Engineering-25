@@ -54,13 +54,13 @@ class GutenbergDownloader:
                 "offset": offset,
             }
 
-            resp = requests.get(self.base_url, params=params,
-                                headers=self.headers, timeout=30)
+            resp = requests.get(
+                self.base_url, params=params, headers=self.headers, timeout=30
+            )
             resp.raise_for_status()
 
             # Match both absolute and relative URLs
-            found = re.findall(
-                r'(https?://[^\s"]+\.zip|/[^"\s]+\.zip)', resp.text)
+            found = re.findall(r'(https?://[^\s"]+\.zip|/[^"\s]+\.zip)', resp.text)
 
             if not found:
                 break
