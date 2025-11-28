@@ -6,6 +6,15 @@ install:
 clean:
 	rm -rf __pycache__ */__pycache__ *.pyc
 
+# format code with black
+format:
+	black src/*.py
+	black src/ingestion/*.py
+
+# Run linter (flake8 for Python files)
+lint:
+	flake8 --ignore=W503,C,N src/*.py
+	flake8 --ignore=W503,C,N src/ingestion*.py
 # Show help
 help:
 	@echo "Available commands:"
