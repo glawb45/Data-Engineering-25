@@ -1,10 +1,28 @@
 # Python cache
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
 
 # Virtual environments
 venv/
 .venv/
+env/
+
+# Environment variables
+.env
+.env.local
 
 # Data files
 data/
@@ -13,6 +31,13 @@ data/
 airflow/logs/
 airflow/airflow.db
 
-# System junk
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# System files
 .DS_Store
 DE_27_Team4.pem
