@@ -8,7 +8,7 @@ import streamlit as st
 from sqlalchemy import create_engine, text
 
 st.set_page_config(page_title="Live Book Interest Dashboard", layout="wide")
-st.title("📚 Live Classic Literature Interest Dashboard")
+st.title(" Live Classic Literature Interest Dashboard")
 st.markdown(
     "**Real-time Wikipedia pageview data showing current interest in classic books**"
 )
