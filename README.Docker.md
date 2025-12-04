@@ -1,9 +1,16 @@
 ### Building and running your application
 
 When you're ready, start your application by running:
-`docker compose up --build`.
+`docker compose up --d`.
 
-Your application will be available at http://localhost:8000.
+Wait for Kafka to initialize
+
+`sleep 30`
+
+Verify all services are running with the following command:
+`docker ps`
+
+Your application will be available at http://localhost:9092.
 
 ### Deploying your application to the cloud
 
