@@ -1,6 +1,10 @@
 # Install Python dependencies
 install:
-	pip install -r requirements.txt
+	pip install --upgrade pip &&\
+		pip install -r requirements.txt
+
+format:
+	black *.py
 
 # Clean temporary files
 clean:
@@ -17,3 +21,6 @@ help:
 	@echo "  make streamlit   - Start Streamlit app"
 	@echo "  make airflow     - Start Airflow (via docker)"
 	@echo "  make clean       - Clean build/data files"
+
+all:
+	install format

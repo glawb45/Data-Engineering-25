@@ -1,1 +1,59 @@
+version: "3.8"
 
+<<<<<<< HEAD
+version: "3.8"
+
+=======
+>>>>>>> 3d90db502757c7c66da83cc1a2e275b74dc59778
+services:
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+<<<<<<< HEAD
+=======
+      # KRaft configuration
+>>>>>>> 3d90db502757c7c66da83cc1a2e275b74dc59778
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      CLUSTER_ID: "Wa2e1kBtQk2yVf8aB5s9xQ"
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3d90db502757c7c66da83cc1a2e275b74dc59778
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+<<<<<<< HEAD
+      POSTGRES_USER: books_user
+      POSTGRES_PASSWORD: books_password
+      POSTGRES_DB: books_db
+=======
+      POSTGRES_USER: kafka_user
+      POSTGRES_PASSWORD: kafka_password
+      POSTGRES_DB: kafka_db
+>>>>>>> 3d90db502757c7c66da83cc1a2e275b74dc59778
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+<<<<<<< HEAD
+  postgres_data:
+=======
+  postgres_data:
+>>>>>>> 3d90db502757c7c66da83cc1a2e275b74dc59778
