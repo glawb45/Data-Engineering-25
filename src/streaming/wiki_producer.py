@@ -1,9 +1,11 @@
-import time
 import json
-import requests
+import os
+import time
 from datetime import datetime, timedelta
-from kafka import KafkaProducer
+
 import pandas as pd
+import requests
+from kafka import KafkaProducer
 
 def get_wikipedia_title(book_title, author):
     """Convert book title to Wikipedia article format."""
@@ -11,6 +13,10 @@ def get_wikipedia_title(book_title, author):
     # We'll try the simple title first
     clean_title = book_title.strip().replace(' ', '_')
     return clean_title
+
+KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "book_pageviews")
+
 
 def fetch_wikipedia_pageviews(article_title):
     """
@@ -50,7 +56,7 @@ def run_producer():
     
     try:
         producer = KafkaProducer(
-            bootstrap_servers="localhost:9092",
+            bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
             value_serializer=lambda v: json.dumps(v).encode("utf-8"),
             request_timeout_ms=30000,
         )
@@ -87,7 +93,7 @@ def run_producer():
                 }
                 
                 print(f"[Producer] 📊 {book_title}: {pageview_data['views']} views")
-                producer.send("book_pageviews", value=message)
+                producer.send(KAFKA_TOPIC, value=message)
                 producer.flush()
                 
                 count += 1
@@ -103,4 +109,3 @@ def run_producer():
 
 if __name__ == "__main__":
     run_producer()
-
