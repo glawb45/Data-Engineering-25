@@ -10,6 +10,8 @@ ENV PYTHONUNBUFFERED=1
 # Install pip requirements
 COPY requirements.txt .
 RUN python -m pip install -r requirements.txt
+RUN apt-get update && apt-get install -y sqlite3 libsqlite3-dev
+
 
 WORKDIR /app
 COPY . /app
