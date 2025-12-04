@@ -1,5 +1,6 @@
 ### Building and running your application
 
+<<<<<<< HEAD
 The project ships with a docker-compose stack for Kafka + Postgres + Streamlit.
 
 1) Build and start the stack from the repo root:
@@ -11,6 +12,20 @@ The project ships with a docker-compose stack for Kafka + Postgres + Streamlit.
 3) Verify services if needed:
 `docker ps`
 
+=======
+When you're ready, start your application by running:
+`docker compose up --d`.
+
+Wait for Kafka to initialize
+
+`sleep 30`
+
+Verify all services are running with the following command:
+`docker ps`
+
+Your application will be available at http://localhost:9092.
+
+>>>>>>> 14040a6b2ca4e2830906d4100d831d1305409c34
 ### Deploying your application to the cloud
 
 First, build your image, e.g.: `docker build -t myapp .`.
@@ -25,4 +40,8 @@ Consult Docker's [getting started](https://docs.docker.com/go/get-started-sharin
 docs for more detail on building and pushing.
 
 ### References
+<<<<<<< HEAD
 * [Docker's Python guide](https://docs.docker.com/language/python/)
+=======
+* [Docker's Python guide](https://docs.docker.com/language/python/)
+>>>>>>> 14040a6b2ca4e2830906d4100d831d1305409c34
