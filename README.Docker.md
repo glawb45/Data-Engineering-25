@@ -1,16 +1,15 @@
 ### Building and running your application
 
-When you're ready, start your application by running:
-`docker compose up --d`.
+The project ships with a docker-compose stack for Kafka + Postgres + Streamlit.
 
-Wait for Kafka to initialize
+1) Build and start the stack from the repo root:
+`docker compose -f docker/docker-compose.yml up --build`
 
-`sleep 30`
+2) Wait for the Kafka healthcheck/topic setup to complete, then open the dashboard:
+`http://localhost:8501`
 
-Verify all services are running with the following command:
+3) Verify services if needed:
 `docker ps`
-
-Your application will be available at http://localhost:9092.
 
 ### Deploying your application to the cloud
 
