@@ -538,6 +538,8 @@ print(f"[Consumer ERROR] {e}")
 - Average views per update
 - Last update timestamp
 
+![Dashboard](SS/Dashboard.png)
+
 **Database Auditing**:
 ```sql
 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
