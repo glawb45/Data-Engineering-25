@@ -2,10 +2,7 @@
 install:
 	pip install --upgrade pip &&\
 		pip install -r requirements.txt
-
-format:
-	black *.py
-
+		
 # Clean temporary files
 clean:
 	rm -rf __pycache__ */__pycache__ *.pyc
