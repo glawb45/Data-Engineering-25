@@ -169,7 +169,7 @@ with DAG(
     'wikipedia_streaming_monitor',
     default_args=default_args,
     description='Monitor Wikipedia pageviews streaming pipeline health',
-    schedule_interval='0 * * * *',  # Hourly
+    schedule_interval=None,  # Manual trigger only
     start_date=datetime(2024, 12, 1),
     catchup=False,
     tags=['streaming', 'kafka', 'wikipedia', 'monitoring'],

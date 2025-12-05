@@ -22,20 +22,19 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 def train_normalizer(**context):
     """Train the spelling normalizer on Shakespeare corpus"""
-    from train_and_test import main as train_main
-    import argparse
+    import sys
 
-    # Mock arguments for the training script
-    class Args:
-        input = "data/FullShakespeare.txt"
-        split = 0.8
-
-    args = Args()
+    # Set up command-line arguments for train_and_test.py
+    sys.argv = [
+        'train_and_test.py',
+        '--input', '/opt/airflow/data/FullShakespeare.txt',
+        '--split', '0.8',
+        '--seed', '42'
+    ]
 
     print("Training spelling normalizer...")
-    # Note: You may need to adapt train_and_test.py to accept programmatic args
-    # For now, we'll call it as a module
     try:
+        from train_and_test import main as train_main
         train_main()
         print("✓ Normalizer training completed successfully")
         return True
@@ -84,7 +83,7 @@ with DAG(
     'nlp_normalization_pipeline',
     default_args=default_args,
     description='Train and apply spelling normalization for Early Modern English',
-    schedule_interval='0 3 * * 6',  # Weekly on Saturdays at 3 AM UTC
+    schedule_interval=None,  # Manual trigger only
     start_date=datetime(2024, 12, 1),
     catchup=False,
     tags=['nlp', 'normalization', 'shakespeare', 'training'],

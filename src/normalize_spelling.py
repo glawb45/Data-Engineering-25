@@ -2,7 +2,7 @@ import argparse
 import math
 import re
 from pathlib import Path
-from typing import Dict, Iterable, List, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple
 
 # Noisy-channel ingredients:
 # - Prior over modern forms (P(modern))
@@ -124,7 +124,7 @@ def _preserve_case(src: str, replacement: str) -> str:
 
 
 def build_normalizer(
-    priors: Dict[str, float] | None = None,
+    priors: Optional[Dict[str, float]] = None,
     channel: Dict[str, Dict[str, float]] = CHANNEL,
 ):
     reverse_channel = _build_reverse_channel(CHANNEL)

@@ -67,7 +67,7 @@ with DAG(
     'gutenberg_ingestion_pipeline',
     default_args=default_args,
     description='Download and process classic literature from Project Gutenberg',
-    schedule_interval='0 2 * * 0',  # Weekly on Sundays at 2 AM UTC
+    schedule_interval=None,  # Manual trigger only
     start_date=datetime(2024, 12, 1),
     catchup=False,
     tags=['gutenberg', 'ingestion', 's3', 'metadata'],
