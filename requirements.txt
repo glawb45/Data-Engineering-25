@@ -1,6 +1,6 @@
-apache-airflow==2.8.0
-apache-airflow-providers-amazon==8.15.0
-apache-airflow-providers-postgres==5.10.0
+apache-airflow
+apache-airflow-providers-amazon
+apache-airflow-providers-postgres
 boto3
 kafka-python==2.0.2
 psycopg2-binary==2.9.9
