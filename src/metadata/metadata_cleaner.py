@@ -1,6 +1,5 @@
 import re
 import io
-from pathlib import Path
 
 import boto3
 import pandas as pd
@@ -27,7 +26,7 @@ def clean_release_date(value):
 
 
 def main():
-    # 1. Read original CSV from S3 
+    # 1. Read original CSV from S3
     print(f"Reading s3://{BUCKET}/{INPUT_KEY}")
     resp = s3.get_object(Bucket=BUCKET, Key=INPUT_KEY)
     body = resp["Body"].read()
@@ -35,10 +34,10 @@ def main():
 
     print(f"Original row count: {len(df)}")
 
-    # 2. Clean release_date 
+    # 2. Clean release_date
     df["release_date"] = df["release_date"].apply(clean_release_date)
 
-    # 3. Drop rows where book_id ends with '-8' 
+    # 3. Drop rows where book_id ends with '-8'
     mask_minus8 = df["book_id"].astype(str).str.endswith("-8")
     num_minus8 = mask_minus8.sum()
     print(f"Removing {num_minus8} rows where book_id ends with '-8'")
@@ -54,7 +53,7 @@ def main():
     print(f"Dropping columns: {cols_to_drop}")
     df = df.drop(columns=cols_to_drop)
 
-    # 5. Cleaned CSV back to S3 
+    # 5. Cleaned CSV back to S3
     csv_bytes = df.to_csv(index=False).encode("utf-8")
     s3.put_object(Bucket=BUCKET, Key=OUTPUT_KEY, Body=csv_bytes)
 
