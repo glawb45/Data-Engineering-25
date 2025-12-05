@@ -1,23 +1,5 @@
 # Classic Literature Analytics Pipeline
 
-## Table of Contents
-
-- [Project Overview](#project-overview)
-- [Architecture](#architecture)
-- [Data Sources](#data-sources)
-- [Key Components](#key-components)
-- [Setup and Installation](#setup-and-installation)
-- [Usage Guide](#usage-guide)
-- [Undercurrents of Data Engineering](#undercurrents-of-data-engineering)
-- [Testing Strategy](#testing-strategy)
-- [Results and Insights](#results-and-insights)
-- [Team Roles](#team-roles)
-- [Video Walkthrough](#video-walkthrough)
-- [Future Enhancements](#future-enhancements)
-- [References](#references)
-- [License](#license)
-- [Acknowledgments](#acknowledgments)
-
 ## Project Overview
 
 This data engineering project builds a **comprehensive analytics pipeline** for classic literature from Project Gutenberg, featuring real-time Wikipedia pageview tracking, automated text normalization, and interactive dashboards. The system demonstrates enterprise-grade data engineering practices including streaming architectures, cloud storage, machine learning, and containerized deployments.
@@ -29,6 +11,7 @@ This data engineering project builds a **comprehensive analytics pipeline** for 
 - **Statistical text normalization** using Bayesian inference for Early Modern English
 - **Interactive dashboards** with live data visualization
 - **Cloud-native architecture** on AWS S3 with PostgreSQL data warehouse
+- **Automated Workflow** Streamline workflow with Airflow Scheduler
 
 ---
 
@@ -40,28 +23,28 @@ This data engineering project builds a **comprehensive analytics pipeline** for 
 ┌─────────────────────────────────────────────────────────────────┐
 │                        DATA INGESTION LAYER                     │
 ├─────────────────────────────────────────────────────────────────┤
-│  Project Gutenberg API  →  S3 (Raw)  →  S3 (Extracted)          │
+│  Project Gutenberg API  →  S3 (Raw)  →  S3 (Extracted via EC2)  │
 │  Wikipedia Pageviews API  →  Kafka Producer                     │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│                     TRANSFORMATION LAYER                        │
+│                     TRANSFORMATION LAYER                         │
 ├─────────────────────────────────────────────────────────────────┤
-│  AWS Bedrock (LLM)  →  Metadata Extraction                      │
-│  Pandas  →  Data Cleaning & Deduplication                       │
+│  AWS Bedrock (LLM)  →  Metadata Extraction                     │
+│  Polars  →  Data Cleaning & Deduplication                       │
 │  Noisy Channel Model  →  Spelling Normalization                 │
 │  Kafka Consumer  →  Stream Processing                           │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│                       STORAGE LAYER                             │
+│                       STORAGE LAYER                              │
 ├─────────────────────────────────────────────────────────────────┤
-│  AWS S3  →  Data Lake (Raw & Processed)                         │
+│  AWS S3  →  Data Lake (Raw & Processed)                        │
 │  PostgreSQL  →  Data Warehouse (Real-time Analytics)            │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│                      ANALYTICS LAYER                            │
+│                      ANALYTICS LAYER                             │
 ├─────────────────────────────────────────────────────────────────┤
 │  Streamlit Dashboard  →  Real-time Visualization                │
 │  Statistical Analysis  →  Model Accuracy Metrics                │
@@ -73,10 +56,10 @@ This data engineering project builds a **comprehensive analytics pipeline** for 
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
 | **Cloud Storage** | AWS S3 | Data lake for raw and processed books |
-| **AI/ML** | AWS Bedrock (Claude 3 Haiku) | Metadata extraction from book headers |
-| **Streaming** | Apache Kafka | Real-time pageview event processing |
+| **AI/ML** | AWS Bedrock (Claude 3 Haiku) | Metadata extraction from book title, author, language, subjects, download count |
+| **Streaming** | Apache Kafka | Real-time Wikipedia pageview event processing |
 | **Database** | PostgreSQL | Data warehouse for analytics |
-| **Data Processing** | Pandas | ETL and data cleaning |
+| **Data Processing** | Polars | ETL and data cleaning |
 | **Statistical Modeling** | Custom Bayesian NLP | Text normalization |
 | **Visualization** | Streamlit + Plotly | Interactive dashboards |
 | **Orchestration** | Make + Docker Compose | Workflow automation |
@@ -87,7 +70,7 @@ This data engineering project builds a **comprehensive analytics pipeline** for 
 ## Data Sources
 
 ### 1. Project Gutenberg (Primary Source)
-- **Volume**: 600+ public domain books
+- **Volume**: 1000+ public domain books
 - **Format**: Plain text (UTF-8)
 - **Content**: Classic literature (pre-1928)
 - **Access Method**: HTTP API with rate limiting
@@ -102,7 +85,7 @@ This data engineering project builds a **comprehensive analytics pipeline** for 
 
 ### 3. Derived Metadata
 - **Source**: AI extraction via AWS Bedrock
-- **Fields**: Title, Author, Release Date, Gutenberg ID
+- **Fields**: Title, Author, Release Date, Gutenberg Book ID
 - **Fallback**: Heuristic parsing when AI unavailable
 - **Quality**: Complete cases only (all fields present)
 
@@ -122,23 +105,6 @@ This data engineering project builds a **comprehensive analytics pipeline** for 
 - Retry logic for failed downloads
 - Multipart uploads for large files (>10MB)
 
-**Code Highlights**:
-```python
-class GutenbergDownloader:
-    def __init__(self, bucket_name, max_urls=600):
-        self.s3 = boto3.client("s3")
-        self.config = TransferConfig(multipart_threshold=10 * 1024 * 1024)
-    
-    def download_and_upload_zip(self, url):
-        # Retry logic with exponential backoff
-        for attempt in range(3):
-            try:
-                resp = requests.get(url, timeout=60)
-                # Extract ZIP in memory and upload to S3
-                with zipfile.ZipFile(BytesIO(resp.content)) as z:
-                    for member in z.namelist():
-                        self.upload_to_s3(f"{book_id}/{member}", z.read(member))
-```
 
 **Data Flow**:
 ```
@@ -160,19 +126,6 @@ Gutenberg API → HTTP Request → ZIP Download → In-Memory Extract → S3 Upl
 - Project Gutenberg headers are semi-structured and inconsistent
 - Traditional parsing fails on variant formats
 - LLMs provide robust extraction with context understanding
-
-**Prompt Engineering**:
-```python
-prompt = f"""
-You are a parser for Project Gutenberg book headers.
-Extract: title, author, release_date, language, gutenberg_id
-Return ONLY valid JSON: {{"title": "...", "author": "..."}}
-If unsure, set field to null.
-
-Text snippet:
-{snippet[:1000]}
-"""
-```
 
 **Handling Failures**:
 ```python
@@ -199,30 +152,14 @@ except botocore.exceptions.ClientError as e:
 **Purpose**: Ensure data quality and consistency
 
 **Cleaning Operations**:
-
-1. **Remove Noise from Release Dates**:
-   ```python
-   def clean_release_date(value):
-       # Before: "December 2003 [EBook #10084]"
-       # After:  "December 2003"
-       return re.sub(r"\s*\[[^\]]*\]\s*$", "", str(value))
-   ```
-
-2. **Deduplicate Encodings**:
+   - Remove duplicates and unnecessary text from data values
+   - Drop redundant columns
    - Removes book_id ending in "-8" (UTF-8 duplicates)
    - Keeps only the primary encoding per book
-   ```python
-   df = df[~df["book_id"].str.endswith("-8")]
-   ```
-
-3. **Drop Redundant Columns**:
-   - `gutenberg_id` (redundant with book_id)
-   - `language` (all books are English)
 
 **Data Quality Metrics**:
-- **Input**: ~600 books with duplicates and noise
-- **Output**: ~300 unique, clean records
-- **Completeness**: 100% (only complete cases kept)
+- **Input**: ~1000 books with duplicates and noise
+- **Completeness**: Only complete cases kept
 
 ### 4. Real-Time Streaming Pipeline
 
@@ -250,20 +187,13 @@ Wikipedia API → Kafka Producer → Kafka Topic (book_pageviews)
                                  }
 ```
 
-**Key Features**:
-- Rotates through featured books every 2 seconds
-- Fetches fresh data every 60 seconds
-- Handles API rate limits and errors gracefully
-- Converts book titles to Wikipedia article format
+![Dashboard](SS/Dashboard.png)
 
-**Production Considerations**:
-```python
-producer = KafkaProducer(
-    bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-    value_serializer=lambda v: json.dumps(v).encode("utf-8"),
-    request_timeout_ms=30000,  # 30s timeout
-)
-```
+**Key Features**:
+- Rotates through featured books
+- Fetches daily pageview data
+- Handles API rate limits and errors
+- Converts book titles to Wikipedia article format
 
 #### 4b. Kafka Consumer (`src/streaming/wiki_consumer.py`)
 
@@ -279,41 +209,6 @@ Kafka Topic → Consumer (Group: book-pageviews-group) → PostgreSQL
                                                            timestamp
 ```
 
-**Database Schema**:
-```sql
-CREATE TABLE book_pageviews (
-    id SERIAL PRIMARY KEY,
-    book_id VARCHAR(255) NOT NULL,
-    book_title VARCHAR(500),
-    author VARCHAR(255),
-    pageviews INTEGER,
-    timestamp TIMESTAMP,
-    data_timestamp VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-CREATE INDEX idx_book_pageviews_timestamp ON book_pageviews(timestamp);
-CREATE INDEX idx_book_pageviews_book_id ON book_pageviews(book_id);
-```
-
-**Insertion Logic**:
-```python
-def insert_into_db(data):
-    insert_query = text("""
-        INSERT INTO book_pageviews 
-        (book_id, book_title, author, pageviews, timestamp, data_timestamp)
-        VALUES (:book_id, :book_title, :author, :pageviews, 
-                :timestamp, :data_timestamp)
-    """)
-    with engine.begin() as conn:
-        conn.execute(insert_query, data)
-```
-
-**Reliability Features**:
-- Automatic offset commits
-- Consumer group for horizontal scaling
-- Connection pooling with `pool_pre_ping=True`
-- Exception handling with full stack traces
-
 #### 4c. Interactive Dashboard (`src/streaming/dashboard.py`)
 
 **Purpose**: Real-time visualization of book interest metrics
@@ -325,24 +220,14 @@ def insert_into_db(data):
 1. **Live KPI Metrics** (4-column layout):
    ```
    ┌─────────────┬──────────────┬─────────────┬──────────────┐
-   │ Data Points │ Total Views  │   Books     │  Avg Views   │
-   │   1,234     │   45,678     │     10      │    456       │
+   │ Data Point  │ Total Views  │   Books     │  Avg Views   │
+   │   Wikipedia │   12,068     │     3       │    4,326     │
    └─────────────┴──────────────┴─────────────┴──────────────┘
    ```
 
 2. **Current Interest Bar Chart**:
-   - Horizontal bars showing latest pageviews per book
-   - Color gradient by view count
+   - Chart showing book interest over time
    - Sorted by popularity
-
-3. **Time Series Line Chart**:
-   - Multi-line plot tracking views over time
-   - Color-coded by book title
-   - Shows trends and spikes
-
-4. **Data Tables**:
-   - **Recent Updates**: Last 10 pageview records
-   - **By Author**: Aggregated statistics (sum, mean)
 
 **Auto-Refresh**:
 ```python
@@ -361,18 +246,18 @@ while True:
     time.sleep(update_interval)  # Live updates
 ```
 
-**SQL Queries**:
+**SQL Database**:
+
+![SQL](SS/SQL_DB.png)
+
 ```sql
 -- Latest pageview per book
-SELECT DISTINCT ON (book_id) 
-    book_id, book_title, author, pageviews, timestamp
-FROM book_pageviews
-ORDER BY book_id, timestamp DESC;
-
--- Time series data
-SELECT * FROM book_pageviews 
-ORDER BY timestamp DESC 
-LIMIT 500;
+SELECT title, author, proper_date
+FROM Books
+WHERE proper_date < '2003-10-01' 
+AND author = 'Charles Dickens' 
+ORDER BY proper_date DESC 
+LIMIT 5;
 ```
 
 **User Experience**:
@@ -429,6 +314,7 @@ Where:
    ```
 
 3. **Scoring Function**:
+    - Calculates probabilities of each modern word candidates and select word with highest likelihood
    ```python
    def score(candidates, observed):
        best_score = -∞
@@ -441,16 +327,6 @@ Where:
                best_modern = modern
        return best_modern
    ```
-
-**Preserving Formatting**:
-```python
-def _preserve_case(src, replacement):
-    if src.isupper():
-        return replacement.upper()  # THOU → YOU
-    if src[0].isupper():
-        return replacement.capitalize()  # Thou → You
-    return replacement  # thou → you
-```
 
 **Example Transformations**:
 ```
@@ -472,6 +348,7 @@ Output: "Where are you going?"
    ```
 
 2. **Learn Priors** with Laplace smoothing:
+    - Helps makes probabilities reflect real-world likelihood 
    ```python
    counts = Counter(modern for _, modern in train_pairs)
    priors = {k: (v + 1) / (total + vocab_size) for k, v in counts.items()}
@@ -510,7 +387,7 @@ This includes a statistical analysis of the noisy-channel spelling normalization
 
 3. **Normalization Behavior**
 - Tested on 100 sample texts
-- 00% texts required modifications
+- 100% texts required modifications
 - 565 words analyzed, 135 changed (23.89% change rate)
 - Most frequent corrections:
   - thou → you
@@ -520,210 +397,68 @@ This includes a statistical analysis of the noisy-channel spelling normalization
   - dost → do
 - System reliably detects and modernizes archaic spellings
 
-4. **Idempotence**
-- Running the normalizer twice makes no further changes
-- 100% idempotent → stable and predictable behavior
+We regressed download counts on language. In our polars dataset, we had languages outside of English, so we were able to gain valuable insights on how language effects the number of downloads, as shown below:
 
-5. **Coverage & Performance**
-- No gaps among high-probability modern words
-- Very fast runtime: ~8.48 million characters/second
-- Suitable for large-scale or batch text normalization
-
-**Summary**
-The statistical results show that the normalization model is:
-- Accurate: Correctly handles frequent archaic spellings
-- Stable: Idempotent across repeated runs
-- Efficient: High throughput for large texts
-- Well-designed: Balanced priors and high-confidence channels
-
-All results are saved in normalization_stats.json for reproducibility.
+![Downloads](SS/Downloads.png)
 
 ## Setup and Installation
 
 ### Prerequisites
-- Python 3.11+
+- Python 3.9
 - Docker & Docker Compose
-- AWS Account (for S3 and Bedrock)
-- PostgreSQL 13+
+- AWS Account (for S3, EC2, Bedrock)
+- PostgreSQL
 - Apache Kafka (or Docker image)
+- Apache Airflow
 
-### Environment Setup
 
-1. **Clone Repository**:
-   ```bash
-   git clone https://github.com/your-team/nlp_final_project.git
-   cd nlp_final_project
-   ```
+## Testing Strategy
 
-2. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+### Test Coverage
 
-   Key packages:
-   ```
-   boto3>=1.28.0          # AWS SDK
-   kafka-python>=2.0.2    # Kafka client
-   pandas>=2.0.0          # Data processing
-   streamlit>=1.28.0      # Dashboard
-   plotly>=5.17.0         # Visualization
-   sqlalchemy>=2.0.0      # Database ORM
-   psycopg2-binary>=2.9.9 # PostgreSQL driver
-   requests>=2.31.0       # HTTP client
-   ```
+| Module | Test File | Coverage |
+|--------|-----------|----------|
+| Gutenberg Downloader | `test_gutenberg_downloader.py` | 85% |
+| Metadata Extractor | `test_metadata_extractor.py` | 90% |
+| Metadata Cleaner | `test_metadata_cleaner.py` | 95% |
+| Spelling Normalizer | `test_normalize_spelling.py` | 92% |
+| Training Pipeline | `test_train_and_test.py` | 88% |
 
-3. **Configure AWS Credentials**:
-   ```bash
-   aws configure
-   # Enter: Access Key ID, Secret Access Key, Region (us-east-1)
-   ```
+### Test Types
 
-4. **Set Environment Variables**:
-   ```bash
-   export KAFKA_BOOTSTRAP_SERVERS="localhost:9092"
-   export KAFKA_TOPIC="book_pageviews"
-   export DATABASE_URL="postgresql://books_user:books_password@localhost:5432/books_db"
-   ```
-
-### Docker Deployment
-
-**Docker Compose Stack** (`docker/docker-compose.yml`):
-```yaml
-version: '3.8'
-
-services:
-  zookeeper:
-    image: confluentinc/cp-zookeeper:latest
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-
-  kafka:
-    image: confluentinc/cp-kafka:latest
-    ports:
-      - "9092:9092"
-    environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-
-  postgres:
-    image: postgres:13
-    environment:
-      POSTGRES_USER: books_user
-      POSTGRES_PASSWORD: books_password
-      POSTGRES_DB: books_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  dashboard:
-    build: .
-    command: streamlit run src/streaming/dashboard.py
-    ports:
-      - "8501:8501"
-    environment:
-      DATABASE_URL: postgresql://books_user:books_password@postgres:5432/books_db
-    depends_on:
-      - postgres
+**1. Unit Tests**:
+```python
+def test_clean_release_date_with_ebook_suffix(self):
+        """Test removing [EBook #xxxx] suffix."""
+        input_val = "January 1, 2020 [EBook #12345]"
+        result = clean_release_date(input_val)
+        assert result == "January 1, 2020"
+        assert "[EBook" not in result
 ```
 
-**Start All Services**:
-```bash
-cd docker
-docker-compose up -d
+**2. Statistical Tests**:
+```python
+def test_sentence_normalization(self):
+        """Test normalization of a full sentence."""
+        normalizer = build_normalizer()
 
-# Verify services
-docker-compose ps
+        text = "Thou art a wise person."
+        result = normalizer(text)
+
+        # Should normalize "thou" and "art"
+        assert "thou" not in result.lower() or result == text  # Either normalized or kept
+        assert "art" not in result or result == text
 ```
 
-### Database Initialization
+### CI/CD Pipeline
 
-```sql
--- Create table (run once)
-CREATE TABLE book_pageviews (
-    id SERIAL PRIMARY KEY,
-    book_id VARCHAR(255) NOT NULL,
-    book_title VARCHAR(500),
-    author VARCHAR(255),
-    pageviews INTEGER,
-    timestamp TIMESTAMP,
-    data_timestamp VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+**GitHub Actions** (`.github/workflows/test.yml`)
+- YML file to use Github Actions
 
--- Add indexes for performance
-CREATE INDEX idx_book_pageviews_timestamp ON book_pageviews(timestamp);
-CREATE INDEX idx_book_pageviews_book_id ON book_pageviews(book_id);
-```
-
----
-
-## Usage Guide
-
-### Makefile Commands
-
-The project uses Make for workflow orchestration:
-
-### Makefile Commands
-
-Key workflow shortcuts:
-
-- **Data ingestion:** `make download`, `make extract-metadata`, `make clean-metadata`
-- **Streaming pipeline:** `make start-producer`, `make start-consumer`, `make run-dashboard`
-- **Normalization:** `make normalize-shakespeare`, `make train-normalizer`
-- **Analysis:** `analyze-gutenberg`, `analyze-polars`, `normalize-stats`
-- **Testing:** `make test`
-- **Docker:** `make docker-up`, `make docker-down`
-
-Full command definitions are available in the Makefile.
-
-### Running the Complete Pipeline
-
-**Step 1: Data Ingestion**
-```bash
-make download  # Downloads 600 books to S3 (~2 hours)
-```
-
-**Step 2: Metadata Extraction**
-```bash
-make extract-metadata  # AI extraction with Bedrock
-make clean-metadata     # Clean and deduplicate
-```
-
-**Step 3: Start Streaming Pipeline**
-```bash
-# Terminal 1: Start Kafka producer
-make start-producer
-
-# Terminal 2: Start Kafka consumer
-make start-consumer
-
-# Terminal 3: Launch dashboard
-make run-dashboard
-# Visit http://localhost:8501
-```
-
-**Step 4: Text Normalization (Optional)**
-```bash
-make normalize-shakespeare
-make train-normalizer
-```
-
-### Testing
-
-**Run All Tests**:
-```bash
-make test
-
-# Or specific test files
-pytest tests/test_metadata_extractor.py -v
-pytest tests/test_normalize_spelling.py -v
-```
-
-**Test Coverage**:
-```bash
-pytest --cov=src tests/
-```
+**Benefits**:
+- Automated testing on every commit
+- Prevents broken code from merging
+- Coverage reports track test quality
 
 ---
 
@@ -750,7 +485,7 @@ pytest --cov=src tests/
 - **Streaming Reads**: Processes S3 objects without loading into memory
 - **Connection Pooling**: SQLAlchemy connection reuse
 
-**Evidence**: Successfully processed 600 books (~2GB) with constant memory usage (<500MB).
+GB) with constant memory usage (<500MB).
 
 ### 2. **Modularity**
 
@@ -958,183 +693,22 @@ KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
 
 ---
 
-## Testing Strategy
-
-### Test Coverage
-
-| Module | Test File | Coverage |
-|--------|-----------|----------|
-| Gutenberg Downloader | `test_gutenberg_downloader.py` | 85% |
-| Metadata Extractor | `test_metadata_extractor.py` | 90% |
-| Metadata Cleaner | `test_metadata_cleaner.py` | 95% |
-| Spelling Normalizer | `test_normalize_spelling.py` | 92% |
-| Training Pipeline | `test_train_and_test.py` | 88% |
-
-### Test Types
-
-**1. Unit Tests**:
-```python
-def test_clean_release_date():
-    from src.metadata.metadata_cleaner import clean_release_date
-    
-    input_date = "December 2003 [EBook #10084]"
-    expected = "December 2003"
-    assert clean_release_date(input_date) == expected
-```
-
-**2. Integration Tests**:
-```python
-def test_s3_upload_integration():
-    downloader = GutenbergDownloader(bucket_name="test-bucket")
-    downloader.upload_to_s3("test.txt", b"Hello World")
-    
-    # Verify object exists
-    resp = s3.get_object(Bucket="test-bucket", Key="test.txt")
-    assert resp["Body"].read() == b"Hello World"
-```
-
-**3. Statistical Tests**:
-```python
-def test_normalizer_accuracy():
-    train_pairs = [("thou", "you"), ("art", "are"), ...]
-
-    priors = _derive_priors(train_pairs)
-    normalizer = build_normalizer(priors=priors)
-    
-    accuracy = evaluate(normalizer, test_pairs)
-    assert accuracy > 0.90  # 90% threshold
-```
-
-### CI/CD Pipeline
-
-**GitHub Actions** (`.github/workflows/test.yml`):
-```yaml
-name: Test Pipeline
-
-on: [push, pull_request]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.11'
-      
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-      
-      - name: Run tests
-        run: pytest tests/ --cov=src --cov-report=xml
-      
-      - name: Upload coverage
-        uses: codecov/codecov-action@v2
-```
-
-**Benefits**:
-- Automated testing on every commit
-- Prevents broken code from merging
-- Coverage reports track test quality
-
----
-
 ## Results and Insights
 
-### Data Processing Metrics
+### DAG Runs
 
-| Metric | Value |
-|--------|-------|
-| **Books Downloaded** | 600+ |
-| **Total Storage** | ~2.5 GB (S3) |
-| **Metadata Records** | 289 (after cleaning) |
-| **Unique Authors** | 150+ |
-| **Streaming Events** | 1,000+ pageviews/hour |
-| **Normalization Accuracy** | 92% |
+![Gutenberg](SS/Gutenberg.png)
+![Wiki](SS/Wiki.png)
 
-### Statistical Insights
-
-**1. Wikipedia Pageview Patterns**:
-- Peak interest in December (holiday classics like "A Christmas Carol")
-- Average views: 500-1,500 per book per day
-- Spike detection: Up to 10x increase during cultural events
-
-**2. Metadata Quality**:
-- 52% of books had complete metadata from Bedrock
-- 30% required heuristic fallback
-- 18% discarded due to incomplete fields
-
-**3. Normalization Performance**:
-```
-Training Set: 12,345 archaic tokens
-Test Set: 3,086 archaic tokens
-Accuracy: 92.3%
-
-Most Common Transformations:
-- thou → you: 1,234 instances
-- thy → your: 876 instances
-- doth → does: 543 instances
-```
-
-### Example Queries
-
-**Top 10 Most Popular Books (Last 24 Hours)**:
-```sql
-SELECT book_title, author, SUM(pageviews) as total_views
-FROM book_pageviews
-WHERE timestamp > NOW() - INTERVAL '24 hours'
-GROUP BY book_title, author
-ORDER BY total_views DESC
-LIMIT 10;
-```
-
-**Interest Trends Over Time**:
-```sql
-SELECT 
-    DATE_TRUNC('hour', timestamp) as hour,
-    book_title,
-    AVG(pageviews) as avg_views
-FROM book_pageviews
-GROUP BY hour, book_title
-ORDER BY hour DESC;
-```
-
----
-
-## Team Roles
+## 👥 Team Roles
 
 | Team Member | Primary Responsibilities |
 |-------------|-------------------------|
-| **Member 1** | Data Ingestion, AWS Infrastructure, S3 Management |
-| **Member 2** | Metadata Extraction, Data Cleaning, Polars/Pandas Processing |
-| **Member 3** | Streaming Pipeline, Kafka Setup, Dashboard Development |
-| **Member 4** | NLP Modeling, Spelling Normalization, Statistical Analysis |
-| **Member 5** | Database Design, CI/CD, Testing, Documentation |
-
-
-**Collaboration Tools**:
-- GitHub for version control
-- Weekly stand-ups and code reviews
-- Shared Notion workspace for planning
-- Slack for async communication
-
----
-
-## Video Walkthrough
-
-**[Link to 8-minute demo video]**
-
-**Outline**:
-1. **Introduction** (1 min): Problem statement and goals
-2. **Architecture Overview** (2 min): System design and data flow
-3. **Live Demo** (4 min):
-   - Show Kafka producer fetching Wikipedia data
-   - Dashboard updating in real-time
-   - Query insights from PostgreSQL
-   - Demonstrate text normalization
-4. **Key Learnings** (1 min): Challenges and solutions
+| **Member 1** | Data Ingestion, AWS Infrastructure, S3 Management, Cluster Instance Setup |
+| **Member 2** | Metadata Extraction, Kafka Setup, Real-Time Data Dashboard Development |
+| **Member 3** | NLP Modeling, Spelling Normalization, Noisy Channel Model Analysis |
+| **Member 4** | Database Design, CI/CD, SQL Execution, Polars & Statistical Analysis |
+| **Member 5** | Dag Development, Airflow Integration, Workflow Outline |
 
 ---
 
@@ -1148,7 +722,6 @@ ORDER BY hour DESC;
 2. **Scalability**:
    - Migrate to AWS Lambda for serverless ingestion
    - Use DynamoDB for real-time key-value storage
-   - Implement Apache Spark for large-scale text processing
 
 3. **Analytics**:
    - Predictive modeling of book popularity
@@ -1181,10 +754,7 @@ This project uses public domain data from Project Gutenberg and Wikipedia. All c
 ## Acknowledgments
 
 Special thanks to:
-- Professor Annie and TAs for guidance
-- Project Gutenberg for open data access
-- Wikimedia Foundation for API access
-- AWS for educational credits
+- Kedar Vaidya, Zhongyuan Yu, Vishesh Gupta, Javidan Karimli, Eric Ortega Rodriguez, and Patrick Wang for guidance
 
 ---
 
