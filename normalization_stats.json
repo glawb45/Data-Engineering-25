@@ -1,0 +1,79 @@
+{
+  "priors": {
+    "total_words": 42,
+    "total_mass": 1.4200000000000006,
+    "mean": 0.033809523809523824,
+    "std_dev": 0.025256058297478325,
+    "variance": 0.0006378684807256237,
+    "entropy": 4.456657283265731,
+    "top_5_mass": 0.43000000000000005,
+    "top_10_mass": 0.7000000000000002,
+    "concentration_ratio": 0.49295774647887314,
+    "probability_ranges": {
+      "high (>0.08)": 1,
+      "medium (0.04-0.08)": 15,
+      "low (<0.04)": 26
+    },
+    "top_10_words": {
+      "you": 0.12,
+      "are": 0.08,
+      "do": 0.08,
+      "will": 0.08,
+      "have": 0.07,
+      "your": 0.06,
+      "were": 0.06,
+      "had": 0.05,
+      "does": 0.05,
+      "would": 0.05
+    }
+  },
+  "channel": {
+    "total_modern_words": 42,
+    "total_archaic_forms": 44,
+    "avg_archaics_per_modern": 1.0476190476190477,
+    "words_with_multiple_archaics": 1,
+    "avg_channel_probability": 0.7965909090909089,
+    "high_confidence_channels": 3,
+    "high_confidence_ratio": 0.06818181818181818
+  },
+  "patterns": {
+    "texts_analyzed": 100,
+    "texts_modified": 100,
+    "modification_rate": 1.0,
+    "total_words_processed": 565,
+    "total_word_changes": 135,
+    "word_change_rate": 0.23893805309734514,
+    "top_20_transformations": {
+      "thou \u2192 you": 30,
+      "art \u2192 are": 10,
+      "thee \u2192 you": 10,
+      "thy \u2192 your": 10,
+      "dost \u2192 do": 10,
+      "whither \u2192 where": 5,
+      "hast \u2192 have": 5,
+      "thither \u2192 there": 5,
+      "ne'er \u2192 never": 5,
+      "ere \u2192 before": 5,
+      "wherefore \u2192 why": 5,
+      "prithee \u2192 please": 5,
+      "shalt \u2192 shall": 5,
+      "thine \u2192 yours": 5,
+      "hither \u2192 here": 5,
+      "o'er \u2192 over": 5,
+      "e'en \u2192 even": 5,
+      "nay \u2192 no": 5
+    },
+    "avg_processing_time_ms": 0.0034199401852674782,
+    "throughput_chars_per_sec": 8479680.470707376
+  },
+  "idempotence": {
+    "total_tested": 4,
+    "idempotent": 4,
+    "idempotence_rate": 1.0
+  },
+  "coverage": {
+    "high_prior_words": 7,
+    "coverage_gaps": 0,
+    "gap_examples": []
+  }
+}
