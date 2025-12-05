@@ -17,10 +17,10 @@ format:
 
 # Run linter (flake8 for Python files)
 lint:
-	flake8 --ignore=W503,C,N src/*.py
-	flake8 --ignore=W503,C,N src/ingestion/*.py
-	flake8 --ignore=W503,C,N src/analysis/*.py
-	flake8 --ignore=W503,C,N tests/*.py
+	flake8 src/*.py
+	flake8 src/ingestion/*.py
+	flake8 src/analysis/*.py
+	flake8 tests/*.py
 
 # Data ingestion
 download:
