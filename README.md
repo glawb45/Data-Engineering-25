@@ -39,30 +39,30 @@ This data engineering project builds a **comprehensive analytics pipeline** for 
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        DATA INGESTION LAYER                      │
+│                        DATA INGESTION LAYER                     │
 ├─────────────────────────────────────────────────────────────────┤
-│  Project Gutenberg API  →  S3 (Raw)  →  S3 (Extracted)         │
+│  Project Gutenberg API  →  S3 (Raw)  →  S3 (Extracted)          │
 │  Wikipedia Pageviews API  →  Kafka Producer                     │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│                     TRANSFORMATION LAYER                         │
+│                     TRANSFORMATION LAYER                        │
 ├─────────────────────────────────────────────────────────────────┤
-│  AWS Bedrock (LLM)  →  Metadata Extraction                     │
+│  AWS Bedrock (LLM)  →  Metadata Extraction                      │
 │  Pandas  →  Data Cleaning & Deduplication                       │
 │  Noisy Channel Model  →  Spelling Normalization                 │
 │  Kafka Consumer  →  Stream Processing                           │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│                       STORAGE LAYER                              │
+│                       STORAGE LAYER                             │
 ├─────────────────────────────────────────────────────────────────┤
-│  AWS S3  →  Data Lake (Raw & Processed)                        │
+│  AWS S3  →  Data Lake (Raw & Processed)                         │
 │  PostgreSQL  →  Data Warehouse (Real-time Analytics)            │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│                      ANALYTICS LAYER                             │
+│                      ANALYTICS LAYER                            │
 ├─────────────────────────────────────────────────────────────────┤
 │  Streamlit Dashboard  →  Real-time Visualization                │
 │  Statistical Analysis  →  Model Accuracy Metrics                │
@@ -758,6 +758,7 @@ pytest --cov=src tests/
 **Component Independence**:
 ```
 src/
+├── analysis/          # Analysis scripts and model evaluation reports
 ├── ingestion/         # Independent downloader
 ├── metadata/          # Decoupled extraction & cleaning
 ├── streaming/         # Producer, consumer, dashboard as separate services
