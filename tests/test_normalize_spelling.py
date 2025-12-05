@@ -107,7 +107,9 @@ class TestNormalizer:
         result = normalizer(text)
 
         # Should normalize "thou" and "art"
-        assert "thou" not in result.lower() or result == text  # Either normalized or kept
+        assert (
+            "thou" not in result.lower() or result == text
+        )  # Either normalized or kept
         assert "art" not in result or result == text
 
     def test_preserve_unknown_words(self):

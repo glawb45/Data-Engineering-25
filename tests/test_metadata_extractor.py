@@ -168,7 +168,7 @@ class TestIsCompleteCase:
             "author": "Author Name",
             "release_date": "Jan 1, 2020",
             "language": "English",
-            "gutenberg_id": "12345"
+            "gutenberg_id": "12345",
         }
 
         assert is_complete_case(row) is True
@@ -180,7 +180,7 @@ class TestIsCompleteCase:
             "author": "Author Name",
             "release_date": "Jan 1, 2020",
             "language": "English",
-            "gutenberg_id": "12345"
+            "gutenberg_id": "12345",
         }
 
         assert is_complete_case(row) is False
@@ -192,7 +192,7 @@ class TestIsCompleteCase:
             "author": None,
             "release_date": "Jan 1, 2020",
             "language": "English",
-            "gutenberg_id": "12345"
+            "gutenberg_id": "12345",
         }
 
         assert is_complete_case(row) is False
@@ -204,7 +204,7 @@ class TestIsCompleteCase:
             "author": "",
             "release_date": "Jan 1, 2020",
             "language": "English",
-            "gutenberg_id": "12345"
+            "gutenberg_id": "12345",
         }
 
         assert is_complete_case(row) is False
@@ -216,7 +216,7 @@ class TestIsCompleteCase:
             "author": "Author Name",
             "release_date": "   ",
             "language": "English",
-            "gutenberg_id": "12345"
+            "gutenberg_id": "12345",
         }
 
         assert is_complete_case(row) is False
@@ -228,13 +228,13 @@ class TestIsCompleteCase:
             "author": "A",
             "release_date": "D",
             "language": "L",
-            "gutenberg_id": "1"
+            "gutenberg_id": "1",
         }
 
         assert is_complete_case(row) is True
 
 
-@patch('metadata_extractor.s3')
+@patch("metadata_extractor.s3")
 def test_list_text_files(mock_s3):
     """Test listing text files from S3."""
     # Mock paginator
@@ -262,13 +262,13 @@ def test_list_text_files(mock_s3):
     assert "corpus/extracted/789/789.pdf" not in result
 
 
-@patch('metadata_extractor.s3')
+@patch("metadata_extractor.s3")
 def test_read_snippet_from_s3(mock_s3):
     """Test reading snippet from S3."""
     # Mock S3 response
     test_content = "This is a test file content " * 100  # Long content
     mock_body = Mock()
-    mock_body.read.return_value = test_content.encode('utf-8')
+    mock_body.read.return_value = test_content.encode("utf-8")
 
     mock_s3.get_object.return_value = {"Body": mock_body}
 
@@ -303,7 +303,7 @@ def test_constants():
 class TestBedrockIntegration:
     """Tests for Bedrock-related functionality."""
 
-    @patch('metadata_extractor.bedrock')
+    @patch("metadata_extractor.bedrock")
     def test_extract_with_bedrock_success(self, mock_bedrock):
         """Test successful metadata extraction with Bedrock."""
         from metadata_extractor import extract_with_bedrock
@@ -312,17 +312,23 @@ class TestBedrockIntegration:
         mock_response = {
             "body": Mock(
                 read=Mock(
-                    return_value=json.dumps({
-                        "content": [{
-                            "text": json.dumps({
-                                "title": "Book Title",
-                                "author": "Author Name",
-                                "release_date": "Jan 1, 2020",
-                                "language": "English",
-                                "gutenberg_id": "12345"
-                            })
-                        }]
-                    }).encode()
+                    return_value=json.dumps(
+                        {
+                            "content": [
+                                {
+                                    "text": json.dumps(
+                                        {
+                                            "title": "Book Title",
+                                            "author": "Author Name",
+                                            "release_date": "Jan 1, 2020",
+                                            "language": "English",
+                                            "gutenberg_id": "12345",
+                                        }
+                                    )
+                                }
+                            ]
+                        }
+                    ).encode()
                 )
             )
         }
@@ -335,7 +341,7 @@ class TestBedrockIntegration:
         assert result["title"] == "Book Title"
         assert result["author"] == "Author Name"
 
-    @patch('metadata_extractor.bedrock')
+    @patch("metadata_extractor.bedrock")
     def test_extract_with_bedrock_invalid_json(self, mock_bedrock):
         """Test Bedrock with invalid JSON response."""
         from metadata_extractor import extract_with_bedrock
@@ -344,11 +350,9 @@ class TestBedrockIntegration:
         mock_response = {
             "body": Mock(
                 read=Mock(
-                    return_value=json.dumps({
-                        "content": [{
-                            "text": "Not valid JSON"
-                        }]
-                    }).encode()
+                    return_value=json.dumps(
+                        {"content": [{"text": "Not valid JSON"}]}
+                    ).encode()
                 )
             )
         }

@@ -71,7 +71,7 @@ def run_consumer():
             # Convert timestamp from string → datetime
             try:
                 data["timestamp"] = datetime.fromisoformat(data["timestamp"])
-            except:
+            except Exception:
                 data["timestamp"] = datetime.now()
 
             print(f"[Kafka] {data['book_title']} → {data['pageviews']} views")

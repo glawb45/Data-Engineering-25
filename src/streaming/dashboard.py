@@ -3,9 +3,10 @@ import time
 from datetime import datetime
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 import streamlit as st
 from sqlalchemy import create_engine, text
+from sqlalchemy.exc import SQLAlchemyError
+
 
 st.set_page_config(page_title="Live Book Interest Dashboard", layout="wide")
 st.title(" Live Classic Literature Interest Dashboard")
@@ -28,8 +29,8 @@ engine = get_engine(DATABASE_URL)
 
 def load_data(limit: int = 500) -> pd.DataFrame:
     query = """
-        SELECT * FROM book_pageviews 
-        ORDER BY timestamp DESC 
+        SELECT * FROM book_pageviews
+        ORDER BY timestamp DESC
         LIMIT :limit
     """
     try:
@@ -45,7 +46,7 @@ def load_data(limit: int = 500) -> pd.DataFrame:
 def get_latest_by_book() -> pd.DataFrame:
     """Get the most recent pageview count for each book."""
     query = """
-        SELECT DISTINCT ON (book_id) 
+        SELECT DISTINCT ON (book_id)
             book_id, book_title, author, pageviews, timestamp
         FROM book_pageviews
         ORDER BY book_id, timestamp DESC
@@ -53,7 +54,7 @@ def get_latest_by_book() -> pd.DataFrame:
     try:
         df = pd.read_sql_query(text(query), con=engine.connect())
         return df
-    except:
+    except SQLAlchemyError:
         return pd.DataFrame()
 
 
@@ -84,7 +85,7 @@ while True:
         unique_books = df_all["book_id"].nunique()
         avg_views = df_all["pageviews"].mean()
 
-        st.subheader(f"📊 Live Statistics")
+        st.subheader("📊 Live Statistics")
         k1, k2, k3, k4 = st.columns(4)
         k1.metric("Total Data Points", f"{total_records:,}")
         k2.metric("Total Pageviews Tracked", f"{total_views:,}")
