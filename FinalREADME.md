@@ -366,6 +366,35 @@ Output: "Where are you going?"
 
 ---
 
+### 6 Statistical Insights from the Normalization Model (`src/analysis/normalize_spelling_stats.py`)
+This includes a statistical analysis of the noisy-channel spelling normalization model, evaluating how well the system maps Early Modern English spellings to modern forms.
+
+1. **Prior Distribution**
+- 42 modern English expressions modeled
+- Entropy: 4.46 nats → well-spread, diverse distribution
+- Top 10 words = 49.3% of total probability mass
+- Highest-probability forms: you, are, do, will, have
+- Balanced priors help the model choose plausible modern replacements
+
+2. **Channel Model**
+- 42 modern forms, 44 archaic spellings
+- Average 1.05 archaic variants per modern word
+- Mean channel confidence: 0.7966
+- High-confidence (>0.9) mappings: 6.8%
+- Channel is compact but expressive, enabling accurate transformations
+
+3. **Normalization Behavior**
+- Tested on 100 sample texts
+- 00% texts required modifications
+- 565 words analyzed, 135 changed (23.89% change rate)
+- Most frequent corrections:
+  - thou → you
+  - art → are
+  - thee → you
+  - thy → your
+  - dost → do
+- System reliably detects and modernizes archaic spellings
+
 ## Setup and Installation
 
 ### Prerequisites
@@ -450,7 +479,7 @@ def test_sentence_normalization(self):
 - **Streaming Reads**: Processes S3 objects without loading into memory
 - **Connection Pooling**: SQLAlchemy connection reuse
 
-**Evidence**: Successfully processed 600 books (~2GB) with constant memory usage (<500MB).
+GB) with constant memory usage (<500MB).
 
 ### 2. **Modularity**
 
