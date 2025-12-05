@@ -43,3 +43,4 @@ plugins/__pycache__/
 # System files
 .DS_Store
 DE_27_Team4.pem
+*.pem
