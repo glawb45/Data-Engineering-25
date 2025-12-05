@@ -63,8 +63,8 @@
       "e'en \u2192 even": 5,
       "nay \u2192 no": 5
     },
-    "avg_processing_time_ms": 0.005322519500623457,
-    "throughput_chars_per_sec": 5448547.440099198
+    "avg_processing_time_ms": 0.00399245967855677,
+    "throughput_chars_per_sec": 7263692.644350807
   },
   "idempotence": {
     "total_tested": 4,
