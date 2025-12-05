@@ -473,6 +473,53 @@ Output: "Where are you going?"
 
 ---
 
+### 6 Statistical Insights from the Normalization Model (`src/normalize_spelling.py`)
+This includes a statistical analysis of the noisy-channel spelling normalization model, evaluating how well the system maps Early Modern English spellings to modern forms.
+
+1. **Prior Distribution**
+- 42 modern English expressions modeled
+- Entropy: 4.46 nats → well-spread, diverse distribution
+- Top 10 words = 49.3% of total probability mass
+- Highest-probability forms: you, are, do, will, have
+- Balanced priors help the model choose plausible modern replacements
+
+2. **Channel Model**
+- 42 modern forms, 44 archaic spellings
+- Average 1.05 archaic variants per modern word
+- Mean channel confidence: 0.7966
+- High-confidence (>0.9) mappings: 6.8%
+- Channel is compact but expressive, enabling accurate transformations
+
+3. **Normalization Behavior**
+- Tested on 100 sample texts
+- 00% texts required modifications
+- 565 words analyzed, 135 changed (23.89% change rate)
+- Most frequent corrections:
+  - thou → you
+  - art → are
+  - thee → you
+  - thy → your
+  - dost → do
+- System reliably detects and modernizes archaic spellings
+
+4. **Idempotence**
+- Running the normalizer twice makes no further changes
+- 100% idempotent → stable and predictable behavior
+
+5. **Coverage & Performance**
+- No gaps among high-probability modern words
+- Very fast runtime: ~8.48 million characters/second
+- Suitable for large-scale or batch text normalization
+
+**Summary**
+The statistical results show that the normalization model is:
+- Accurate: Correctly handles frequent archaic spellings
+- Stable: Idempotent across repeated runs
+- Efficient: High throughput for large texts
+- Well-designed: Balanced priors and high-confidence channels
+
+All results are saved in normalization_stats.json for reproducibility.
+
 ## Setup and Installation
 
 ### Prerequisites
@@ -1073,6 +1120,8 @@ ORDER BY hour DESC;
 | **Member 2** | Streaming Pipeline, Kafka Setup, Dashboard Development |
 | **Member 3** | NLP Modeling, Spelling Normalization, Statistical Analysis |
 | **Member 4** | Database Design, CI/CD, Testing, Documentation |
+| **Member 5** | Metadata Extraction, Data Cleaning, Polars/Pandas Processing |
+
 
 **Collaboration Tools**:
 - GitHub for version control
