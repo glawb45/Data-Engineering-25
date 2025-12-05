@@ -30,6 +30,8 @@ data/
 # Airflow logs/db
 airflow/logs/
 airflow/airflow.db
+logs/
+plugins/__pycache__/
 
 # IDE
 .vscode/

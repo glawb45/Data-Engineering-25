@@ -1,0 +1,13 @@
+# Airflow will ignore files matching these patterns
+__pycache__
+*.pyc
+*.pyo
+.git
+.gitignore
+README.md
+tests/
+docker/
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
