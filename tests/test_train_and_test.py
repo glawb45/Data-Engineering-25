@@ -1,6 +1,11 @@
+"""
+Tests for train_and_test.py module.
+Handles Python 3.9 compatibility for normalize_spelling.py imports.
+"""
+from __future__ import annotations
+
 import sys
 from pathlib import Path
-from unittest.mock import Mock, patch, mock_open
 import tempfile
 
 # Add src to path
