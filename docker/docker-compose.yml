@@ -61,7 +61,7 @@ services:
         condition: service_healthy
     volumes:
       - ../dags:/opt/airflow/dags
-      - ../logs:/opt/airflow/logs
+      - airflow_logs:/opt/airflow/logs
       - ../plugins:/opt/airflow/plugins
     restart: unless-stopped
 
@@ -83,10 +83,11 @@ services:
         condition: service_started
     volumes:
       - ../dags:/opt/airflow/dags
-      - ../logs:/opt/airflow/logs
+      - airflow_logs:/opt/airflow/logs
       - ../plugins:/opt/airflow/plugins
     restart: unless-stopped
 
 volumes:
   postgres_data:
   airflow_db_data:
+  airflow_logs:
