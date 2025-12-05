@@ -1,5 +1,4 @@
 import polars as pl
-import numpy as np
 from sklearn.linear_model import LinearRegression
 
 df = pl.read_csv("data/gutenberg_full_catalog.csv")

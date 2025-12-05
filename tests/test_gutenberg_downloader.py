@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import unittest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from io import BytesIO
 import zipfile
 import sys
