@@ -1,6 +1,6 @@
-# Airflow providers (Airflow itself installed separately with constraints)
-apache-airflow-providers-amazon
-apache-airflow-providers-postgres
+# Airflow providers (compatible with Airflow 2.8.1)
+apache-airflow-providers-amazon==8.13.0
+apache-airflow-providers-postgres==5.9.0
 
 # AWS and Cloud
 boto3
