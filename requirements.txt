@@ -9,7 +9,6 @@ psycopg2-binary==2.9.9
 pytest
 requests==2.31.0
 faker==19.3.1
-psycopg2-binary==2.9.7
 pandas==2.0.3
 plotly==5.16.1
 streamlit==1.26.0
