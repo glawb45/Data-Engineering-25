@@ -13,19 +13,31 @@ def fetch_gutenberg_catalog():
         response = requests.get(url)
         data = response.json()
 
-        for book in data['results']:
-            all_books.append({
-                'gutenberg_id': book['id'],
-                'title': book['title'],
-                'authors': ', '.join([a['name'] for a in book['authors']]) if book['authors'] else 'Unknown',
-                'languages': ', '.join(book['languages']),
-                'subjects': ', '.join(book['subjects'][:3]) if book['subjects'] else '',
-                'bookshelves': ', '.join(book['bookshelves'][:3]) if book['bookshelves'] else '',
-                'download_count': book['download_count'],
-                'copyright': book['copyright']
-            })
+        for book in data["results"]:
+            all_books.append(
+                {
+                    "gutenberg_id": book["id"],
+                    "title": book["title"],
+                    "authors": (
+                        ", ".join([a["name"] for a in book["authors"]])
+                        if book["authors"]
+                        else "Unknown"
+                    ),
+                    "languages": ", ".join(book["languages"]),
+                    "subjects": (
+                        ", ".join(book["subjects"][:3]) if book["subjects"] else ""
+                    ),
+                    "bookshelves": (
+                        ", ".join(book["bookshelves"][:3])
+                        if book["bookshelves"]
+                        else ""
+                    ),
+                    "download_count": book["download_count"],
+                    "copyright": book["copyright"],
+                }
+            )
 
-        url = data['next']  # Pagination
+        url = data["next"]  # Pagination
         print(f"Fetched {len(all_books)} books...")
         time.sleep(0.5)
 
@@ -33,7 +45,7 @@ def fetch_gutenberg_catalog():
             break
 
     df = pl.DataFrame(all_books)
-    df.write_csv('data/gutenberg_full_catalog.csv')
+    df.write_csv("data/gutenberg_full_catalog.csv")
     return df
 
 

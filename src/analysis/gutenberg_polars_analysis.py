@@ -8,12 +8,14 @@ print("Rows:", df.height, "Columns:", df.width)
 print(df.head())
 
 # Basic cleaning / feature engineering
-df = df.with_columns([
-    pl.col("download_count").cast(pl.Int64),
-    pl.col("title").str.len_chars().alias("title_length"),
-    pl.col("subjects").str.len_chars().alias("subjects_length"),
-    (pl.col("copyright") == False).cast(pl.Int8).alias("is_public_domain"),
-])
+df = df.with_columns(
+    [
+        pl.col("download_count").cast(pl.Int64),
+        pl.col("title").str.len_chars().alias("title_length"),
+        pl.col("subjects").str.len_chars().alias("subjects_length"),
+        (pl.col("copyright") == False).cast(pl.Int8).alias("is_public_domain"),
+    ]
+)
 
 # Descriptive statistics
 print("\n=== Download count summary ===")
@@ -22,16 +24,16 @@ print(df["download_count"].describe())
 print("\nTop 10 most downloaded books:")
 print(
     df.select(["title", "authors", "download_count"])
-      .sort("download_count", descending=True)
-      .head(10)
+    .sort("download_count", descending=True)
+    .head(10)
 )
 
 print("\nDownloads by language (top 10):")
 print(
     df.group_by("languages")
-      .agg(pl.col("download_count").sum().alias("total_downloads"))
-      .sort("total_downloads", descending=True)
-      .head(10)
+    .agg(pl.col("download_count").sum().alias("total_downloads"))
+    .sort("total_downloads", descending=True)
+    .head(10)
 )
 
 # Simple regression: do longer titles get more downloads?
@@ -41,20 +43,24 @@ print(
 # Find top 5 languages by total downloads
 lang_stats = (
     df.group_by("languages")
-      .agg(pl.col("download_count").sum().alias("total_downloads"))
-      .sort("total_downloads", descending=True)
+    .agg(pl.col("download_count").sum().alias("total_downloads"))
+    .sort("total_downloads", descending=True)
 )
 top_langs = lang_stats["languages"][:5].to_list()
 print("\nTop 5 languages by total downloads:", top_langs)
 
 # Create one‑hot columns for top 5 languages
-df_lang = df.with_columns([
-    *(pl.when(pl.col("languages") == lang)
-        .then(1)
-        .otherwise(0)
-        .alias(f"is_{lang}")
-      for lang in top_langs)
-])
+df_lang = df.with_columns(
+    [
+        *(
+            pl.when(pl.col("languages") == lang)
+            .then(1)
+            .otherwise(0)
+            .alias(f"is_{lang}")
+            for lang in top_langs
+        )
+    ]
+)
 
 # Keep only rows with non-null download_count
 df_reg = df_lang.drop_nulls(["download_count"])
@@ -76,4 +82,3 @@ print("Features:", feature_cols)
 print("Coefficients:", [f"{c:.1f}" for c in coefs])
 print(f"Intercept: {intercept:.1f}")
 print(f"R²: {r2:.4f}")
-

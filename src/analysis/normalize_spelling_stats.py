@@ -1,6 +1,7 @@
 """
 Statistical Analysis for normalize_spelling.py
 """
+
 from __future__ import annotations
 
 import sys
@@ -62,32 +63,33 @@ class NormalizerStatisticalAnalysis:
         total_mass = sum(DEFAULT_MODERN_PRIORS.values())
         mean_prior = total_mass / len(DEFAULT_MODERN_PRIORS)
         variance = sum((p - mean_prior) ** 2 for _, p in priors_list) / len(priors_list)
-        std_dev = variance ** 0.5
+        std_dev = variance**0.5
 
         import math
+
         entropy = -sum(p * math.log(p) for p in DEFAULT_MODERN_PRIORS.values())
 
         top_5_mass = sum(p for _, p in sorted_priors[:5])
         top_10_mass = sum(p for _, p in sorted_priors[:10])
 
         prob_ranges = {
-            'high (>0.08)': sum(1 for _, p in priors_list if p > 0.08),
-            'medium (0.04-0.08)': sum(1 for _, p in priors_list if 0.04 <= p <= 0.08),
-            'low (<0.04)': sum(1 for _, p in priors_list if p < 0.04),
+            "high (>0.08)": sum(1 for _, p in priors_list if p > 0.08),
+            "medium (0.04-0.08)": sum(1 for _, p in priors_list if 0.04 <= p <= 0.08),
+            "low (<0.04)": sum(1 for _, p in priors_list if p < 0.04),
         }
 
         stats = {
-            'total_words': len(DEFAULT_MODERN_PRIORS),
-            'total_mass': total_mass,
-            'mean': mean_prior,
-            'std_dev': std_dev,
-            'variance': variance,
-            'entropy': entropy,
-            'top_5_mass': top_5_mass,
-            'top_10_mass': top_10_mass,
-            'concentration_ratio': top_10_mass / total_mass,
-            'probability_ranges': prob_ranges,
-            'top_10_words': dict(sorted_priors[:10]),
+            "total_words": len(DEFAULT_MODERN_PRIORS),
+            "total_mass": total_mass,
+            "mean": mean_prior,
+            "std_dev": std_dev,
+            "variance": variance,
+            "entropy": entropy,
+            "top_5_mass": top_5_mass,
+            "top_10_mass": top_10_mass,
+            "concentration_ratio": top_10_mass / total_mass,
+            "probability_ranges": prob_ranges,
+            "top_10_words": dict(sorted_priors[:10]),
         }
 
         print(f"Total Words: {stats['total_words']}")
@@ -95,7 +97,9 @@ class NormalizerStatisticalAnalysis:
         print(f"Mean Prior: {stats['mean']:.4f}")
         print(f"Std Dev: {stats['std_dev']:.4f}")
         print(f"Entropy: {stats['entropy']:.4f} nats")
-        print(f"Top 10 Mass: {stats['top_10_mass']:.4f} ({stats['top_10_mass']/total_mass:.1%})")
+        print(
+            f"Top 10 Mass: {stats['top_10_mass']:.4f} ({stats['top_10_mass']/total_mass:.1%})"
+        )
 
         print("\nTop 10 Most Likely Words:")
         for i, (word, prob) in enumerate(sorted_priors[:10], 1):
@@ -122,20 +126,19 @@ class NormalizerStatisticalAnalysis:
         }
 
         all_channel_probs = [
-            prob for archaics in CHANNEL.values()
-            for prob in archaics.values()
+            prob for archaics in CHANNEL.values() for prob in archaics.values()
         ]
         avg_channel_prob = sum(all_channel_probs) / len(all_channel_probs)
         high_conf_count = sum(1 for p in all_channel_probs if p > 0.9)
 
         stats = {
-            'total_modern_words': total_modern,
-            'total_archaic_forms': total_archaic,
-            'avg_archaics_per_modern': avg_archaics,
-            'words_with_multiple_archaics': len(multi_archaic_words),
-            'avg_channel_probability': avg_channel_prob,
-            'high_confidence_channels': high_conf_count,
-            'high_confidence_ratio': high_conf_count / len(all_channel_probs),
+            "total_modern_words": total_modern,
+            "total_archaic_forms": total_archaic,
+            "avg_archaics_per_modern": avg_archaics,
+            "words_with_multiple_archaics": len(multi_archaic_words),
+            "avg_channel_probability": avg_channel_prob,
+            "high_confidence_channels": high_conf_count,
+            "high_confidence_ratio": high_conf_count / len(all_channel_probs),
         }
 
         print(f"Modern Words: {stats['total_modern_words']}")
@@ -189,7 +192,9 @@ class NormalizerStatisticalAnalysis:
 
         avg_time = sum(processing_times) / len(processing_times)
         total_chars = sum(len(t) for t in sample_texts)
-        throughput = total_chars / sum(processing_times) if sum(processing_times) > 0 else 0
+        throughput = (
+            total_chars / sum(processing_times) if sum(processing_times) > 0 else 0
+        )
 
         # Convert Counter to dict with proper format for JSON
         top_transformations = {}
@@ -197,25 +202,29 @@ class NormalizerStatisticalAnalysis:
             top_transformations[key] = count
 
         stats = {
-            'texts_analyzed': num_samples,
-            'texts_modified': texts_modified,
-            'modification_rate': texts_modified / num_samples,
-            'total_words_processed': total_words,
-            'total_word_changes': total_changes,
-            'word_change_rate': total_changes / total_words if total_words > 0 else 0,
-            'top_20_transformations': top_transformations,
-            'avg_processing_time_ms': avg_time * 1000,
-            'throughput_chars_per_sec': throughput,
+            "texts_analyzed": num_samples,
+            "texts_modified": texts_modified,
+            "modification_rate": texts_modified / num_samples,
+            "total_words_processed": total_words,
+            "total_word_changes": total_changes,
+            "word_change_rate": total_changes / total_words if total_words > 0 else 0,
+            "top_20_transformations": top_transformations,
+            "avg_processing_time_ms": avg_time * 1000,
+            "throughput_chars_per_sec": throughput,
         }
 
-        print(f"Texts Modified: {stats['texts_modified']}/{num_samples} ({stats['modification_rate']:.1%})")
+        print(
+            f"Texts Modified: {stats['texts_modified']}/{num_samples} ({stats['modification_rate']:.1%})"
+        )
         print(f"Total Words: {stats['total_words_processed']}")
         print(f"Words Changed: {stats['total_word_changes']}")
         print(f"Word Change Rate: {stats['word_change_rate']:.2%}")
         print(f"Throughput: {stats['throughput_chars_per_sec']:,.0f} chars/sec")
 
         print("\nTop 10 Transformations:")
-        for i, (transformation, count) in enumerate(list(top_transformations.items())[:10], 1):
+        for i, (transformation, count) in enumerate(
+            list(top_transformations.items())[:10], 1
+        ):
             print(f"  {i:2d}. {transformation}: {count} times")
 
         return stats
@@ -243,12 +252,14 @@ class NormalizerStatisticalAnalysis:
                 idempotent_count += 1
 
         stats = {
-            'total_tested': len(test_cases),
-            'idempotent': idempotent_count,
-            'idempotence_rate': idempotent_count / len(test_cases),
+            "total_tested": len(test_cases),
+            "idempotent": idempotent_count,
+            "idempotence_rate": idempotent_count / len(test_cases),
         }
 
-        print(f"Idempotent: {idempotent_count}/{len(test_cases)} ({stats['idempotence_rate']:.1%})")
+        print(
+            f"Idempotent: {idempotent_count}/{len(test_cases)} ({stats['idempotence_rate']:.1%})"
+        )
 
         return stats
 
@@ -267,9 +278,9 @@ class NormalizerStatisticalAnalysis:
                 coverage_gaps.append(word)
 
         stats = {
-            'high_prior_words': len(high_prior_words),
-            'coverage_gaps': len(coverage_gaps),
-            'gap_examples': coverage_gaps[:5],
+            "high_prior_words": len(high_prior_words),
+            "coverage_gaps": len(coverage_gaps),
+            "gap_examples": coverage_gaps[:5],
         }
 
         print(f"High Prior Words (>0.05): {len(high_prior_words)}")
@@ -312,11 +323,11 @@ class NormalizerStatisticalAnalysis:
         print("║" + " " * 15 + "STATISTICAL ANALYSIS REPORT" + " " * 36 + "║")
         print("╚" + "═" * 78 + "╝")
 
-        self.results['priors'] = self.analyze_prior_distribution_detailed()
-        self.results['channel'] = self.analyze_channel_structure_detailed()
-        self.results['patterns'] = self.analyze_normalization_patterns(100)
-        self.results['idempotence'] = self.analyze_idempotence()
-        self.results['coverage'] = self.analyze_coverage_gaps()
+        self.results["priors"] = self.analyze_prior_distribution_detailed()
+        self.results["channel"] = self.analyze_channel_structure_detailed()
+        self.results["patterns"] = self.analyze_normalization_patterns(100)
+        self.results["idempotence"] = self.analyze_idempotence()
+        self.results["coverage"] = self.analyze_coverage_gaps()
 
         print("\n" + "=" * 80)
         print("SUMMARY")
@@ -325,22 +336,30 @@ class NormalizerStatisticalAnalysis:
         print("\nKey Findings:")
         print(f"  • Prior entropy: {self.results['priors']['entropy']:.2f} nats")
         print(f"  • Archaic forms: {self.results['channel']['total_archaic_forms']}")
-        print(f"  • High confidence channels: {self.results['channel']['high_confidence_ratio']:.1%}")
-        print(f"  • Modification rate: {self.results['patterns']['modification_rate']:.1%}")
-        print(f"  • Word change rate: {self.results['patterns']['word_change_rate']:.2%}")
+        print(
+            f"  • High confidence channels: {self.results['channel']['high_confidence_ratio']:.1%}"
+        )
+        print(
+            f"  • Modification rate: {self.results['patterns']['modification_rate']:.1%}"
+        )
+        print(
+            f"  • Word change rate: {self.results['patterns']['word_change_rate']:.2%}"
+        )
         print(f"  • Idempotence: {self.results['idempotence']['idempotence_rate']:.1%}")
-        print(f"  • Throughput: {self.results['patterns']['throughput_chars_per_sec']:,.0f} chars/sec")
+        print(
+            f"  • Throughput: {self.results['patterns']['throughput_chars_per_sec']:,.0f} chars/sec"
+        )
 
         # Save to JSON (all keys are now JSON-compatible)
         output_path = Path(__file__).parent / "normalization_stats.json"
         try:
-            with open(output_path, 'w') as f:
+            with open(output_path, "w") as f:
                 json.dump(self.results, f, indent=2, default=str)
             print("\n Saved to: normalization_stats.json")
         except Exception as e:
             print(f"\n⚠ Could not save JSON: {e}")
             # Try saving as text instead
-            with open(output_path , 'w') as f:
+            with open(output_path, "w") as f:
                 f.write("STATISTICAL ANALYSIS RESULTS\n")
                 f.write("=" * 80 + "\n\n")
                 for section, data in self.results.items():
