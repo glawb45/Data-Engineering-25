@@ -13,7 +13,6 @@ RUN apt-get update && apt-get install -y \
     g++ \
     make \
     libpq-dev \
-    libre2-dev \
     sqlite3 \
     libsqlite3-dev \
     && rm -rf /var/lib/apt/lists/*
