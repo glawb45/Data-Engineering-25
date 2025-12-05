@@ -1,5 +1,24 @@
 # Classic Literature Analytics Pipeline
 
+## Table of Contents
+
+- [Project Overview](#project-overview)
+- [Architecture](#architecture)
+- [Data Sources](#data-sources)
+- [Key Components](#key-components)
+- [Statistical Insights from the Normalization Model](#statistical-insights-from-the-normalization-model)
+- [Setup and Installation](#setup-and-installation)
+- [Usage Guide](#usage-guide)
+- [Undercurrents of Data Engineering](#undercurrents-of-data-engineering)
+- [Testing Strategy](#testing-strategy)
+- [Results and Insights](#results-and-insights)
+- [Team Roles](#team-roles)
+- [Video Walkthrough](#video-walkthrough)
+- [Future Enhancements](#future-enhancements)
+- [References](#references)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
 ## Project Overview
 
 This data engineering project builds a **comprehensive analytics pipeline** for classic literature from Project Gutenberg, featuring real-time Wikipedia pageview tracking, automated text normalization, and interactive dashboards. The system demonstrates enterprise-grade data engineering practices including streaming architectures, cloud storage, machine learning, and containerized deployments.
@@ -1112,15 +1131,15 @@ ORDER BY hour DESC;
 
 ---
 
-## 👥 Team Roles
+## Team Roles
 
 | Team Member | Primary Responsibilities |
 |-------------|-------------------------|
 | **Member 1** | Data Ingestion, AWS Infrastructure, S3 Management |
-| **Member 2** | Streaming Pipeline, Kafka Setup, Dashboard Development |
-| **Member 3** | NLP Modeling, Spelling Normalization, Statistical Analysis |
-| **Member 4** | Database Design, CI/CD, Testing, Documentation |
-| **Member 5** | Metadata Extraction, Data Cleaning, Polars/Pandas Processing |
+| **Member 2** | Metadata Extraction, Data Cleaning, Polars/Pandas Processing |
+| **Member 3** | Streaming Pipeline, Kafka Setup, Dashboard Development |
+| **Member 4** | NLP Modeling, Spelling Normalization, Statistical Analysis |
+| **Member 5** | Database Design, CI/CD, Testing, Documentation |
 
 
 **Collaboration Tools**:
