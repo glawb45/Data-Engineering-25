@@ -1,5 +1,7 @@
 # Classic Literature Analytics Pipeline
 
+[![Tests](https://github.com/glawb45/Data-Engineering-25/actions/workflows/test.yml/badge.svg)](https://github.com/glawb45/Data-Engineering-25/actions/workflows/test.yml)
+
 ## Project Overview
 
 This data engineering project builds a **comprehensive analytics pipeline** for classic literature from Project Gutenberg, featuring real-time Wikipedia pageview tracking, automated text normalization, and interactive dashboards. The system demonstrates enterprise-grade data engineering practices including streaming architectures, cloud storage, machine learning, and containerized deployments.

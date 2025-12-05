@@ -1,5 +1,7 @@
 # Classic Literature Analytics Pipeline
 
+[![Tests](https://github.com/glawb45/Data-Engineering-25/actions/workflows/test.yml/badge.svg)](https://github.com/glawb45/Data-Engineering-25/actions/workflows/test.yml)
+
 ## Table of Contents
 
 - [Project Overview](#project-overview)
