@@ -700,7 +700,7 @@ KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
 
 We regressed download counts on language. In our polars dataset, we had languages outside of English, so we were able to gain valuable insights on how language effects the number of downloads, as shown below:
 
-![Downloads](SS/Downloads.heic)
+![Downloads](SS/Downloads.png)
 
 ## 👥 Team Roles
 
