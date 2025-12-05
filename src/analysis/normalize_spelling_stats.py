@@ -1,8 +1,5 @@
 """
 Statistical Analysis for normalize_spelling.py
-Works with Python 3.9.2 - No modifications to normalize_spelling.py needed!
-
-Usage: python statistical_analysis_wrapper.py
 """
 from __future__ import annotations
 
@@ -10,7 +7,7 @@ import sys
 from pathlib import Path
 
 # Add src to path BEFORE importing
-src_path = Path(__file__).parent.parent / "src"
+src_path = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(src_path))
 
 # Patch the normalize_spelling module to work with Python 3.9
@@ -20,7 +17,6 @@ if normalize_spelling_path.exists():
 
     if "from __future__ import annotations" not in content:
         import importlib.util
-        import types
 
         patched_content = "from __future__ import annotations\n" + content
 
@@ -30,10 +26,10 @@ if normalize_spelling_path.exists():
         exec(patched_content, module.__dict__)
         sys.modules["normalize_spelling"] = module
 
-        print("✓ Successfully patched normalize_spelling for Python 3.9 compatibility\n")
+        print("Successfully patched normalize_spelling for Python 3.9 compatibility\n")
 
-from collections import Counter, defaultdict
-from typing import Dict, List, Tuple, Any
+from collections import Counter
+from typing import Dict, List, Any
 import json
 import time
 import re
@@ -101,7 +97,7 @@ class NormalizerStatisticalAnalysis:
         print(f"Entropy: {stats['entropy']:.4f} nats")
         print(f"Top 10 Mass: {stats['top_10_mass']:.4f} ({stats['top_10_mass']/total_mass:.1%})")
 
-        print(f"\nTop 10 Most Likely Words:")
+        print("\nTop 10 Most Likely Words:")
         for i, (word, prob) in enumerate(sorted_priors[:10], 1):
             print(f"  {i:2d}. '{word}': {prob:.4f}")
 
@@ -218,7 +214,7 @@ class NormalizerStatisticalAnalysis:
         print(f"Word Change Rate: {stats['word_change_rate']:.2%}")
         print(f"Throughput: {stats['throughput_chars_per_sec']:,.0f} chars/sec")
 
-        print(f"\nTop 10 Transformations:")
+        print("\nTop 10 Transformations:")
         for i, (transformation, count) in enumerate(list(top_transformations.items())[:10], 1):
             print(f"  {i:2d}. {transformation}: {count} times")
 
@@ -325,8 +321,8 @@ class NormalizerStatisticalAnalysis:
         print("\n" + "=" * 80)
         print("SUMMARY")
         print("=" * 80)
-        print(f"\n✓ Analysis Complete!")
-        print(f"\nKey Findings:")
+        print("\nAnalysis Complete!")
+        print("\nKey Findings:")
         print(f"  • Prior entropy: {self.results['priors']['entropy']:.2f} nats")
         print(f"  • Archaic forms: {self.results['channel']['total_archaic_forms']}")
         print(f"  • High confidence channels: {self.results['channel']['high_confidence_ratio']:.1%}")
@@ -336,21 +332,22 @@ class NormalizerStatisticalAnalysis:
         print(f"  • Throughput: {self.results['patterns']['throughput_chars_per_sec']:,.0f} chars/sec")
 
         # Save to JSON (all keys are now JSON-compatible)
+        output_path = Path(__file__).parent / "normalization_stats.json"
         try:
-            with open('normalization_stats.json', 'w') as f:
+            with open(output_path, 'w') as f:
                 json.dump(self.results, f, indent=2, default=str)
-            print("\n✓ Saved to: normalization_stats.json")
+            print("\n Saved to: normalization_stats.json")
         except Exception as e:
             print(f"\n⚠ Could not save JSON: {e}")
             # Try saving as text instead
-            with open('normalization_stats.txt', 'w') as f:
+            with open(output_path , 'w') as f:
                 f.write("STATISTICAL ANALYSIS RESULTS\n")
                 f.write("=" * 80 + "\n\n")
                 for section, data in self.results.items():
                     f.write(f"\n{section.upper()}\n")
                     f.write("-" * 80 + "\n")
                     f.write(str(data) + "\n")
-            print("✓ Saved to: normalization_stats.txt instead")
+            print("Saved to: normalization_stats.txt instead")
 
         print()
 
