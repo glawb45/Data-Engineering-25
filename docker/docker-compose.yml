@@ -35,7 +35,7 @@ services:
         condition: service_healthy
     entrypoint: ["/bin/sh", "-c"]
     command: >
-      kafka-topics --create --if-not-exists --topic book_pageviews --bootstrap-server kafka:9092 --replication-factor 1 --partitions 1
+      "sleep 10 && kafka-topics --create --if-not-exists --topic book_pageviews --bootstrap-server kafka:9092 --replication-factor 1 --partitions 1 || exit 0"
     restart: "no"
 
   postgres:
@@ -66,12 +66,8 @@ services:
       DATABASE_URL: postgresql://books_user:books_password@postgres:5432/books_db
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     depends_on:
-      kafka:
-        condition: service_healthy
       postgres:
         condition: service_healthy
-      kafka-setup:
-        condition: service_completed_successfully
     restart: unless-stopped
 
   # Airflow Metadata Database
@@ -117,8 +113,6 @@ services:
       airflow-postgres:
         condition: service_healthy
       postgres:
-        condition: service_healthy
-      kafka:
         condition: service_healthy
     volumes:
       - ../dags:/opt/airflow/dags
