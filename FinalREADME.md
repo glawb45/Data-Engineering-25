@@ -244,7 +244,10 @@ while True:
     time.sleep(update_interval)  # Live updates
 ```
 
-**SQL Queries**:
+**SQL Database**:
+
+![SQL](SS/SQL_DB.png)
+
 ```sql
 -- Latest pageview per book
 SELECT title, author, proper_date
