@@ -387,7 +387,7 @@ This includes a statistical analysis of the noisy-channel spelling normalization
 
 3. **Normalization Behavior**
 - Tested on 100 sample texts
-- 00% texts required modifications
+- 100% texts required modifications
 - 565 words analyzed, 135 changed (23.89% change rate)
 - Most frequent corrections:
   - thou → you
