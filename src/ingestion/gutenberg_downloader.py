@@ -6,6 +6,10 @@ import zipfile
 from io import BytesIO
 import boto3
 from boto3.s3.transfer import TransferConfig
+import urllib3
+
+# Disable SSL warnings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class GutenbergDownloader:
@@ -55,7 +59,7 @@ class GutenbergDownloader:
             }
 
             resp = requests.get(
-                self.base_url, params=params, headers=self.headers, timeout=30
+                self.base_url, params=params, headers=self.headers, timeout=30, verify=False
             )
             resp.raise_for_status()
 
@@ -88,7 +92,7 @@ class GutenbergDownloader:
         # Retry logic
         for attempt in range(3):
             try:
-                resp = requests.get(url, headers=self.headers, timeout=60)
+                resp = requests.get(url, headers=self.headers, timeout=60, verify=False)
                 resp.raise_for_status()
                 break
             except Exception as e:
