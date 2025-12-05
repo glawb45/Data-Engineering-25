@@ -10,18 +10,11 @@ kafka-python==2.0.2
 
 # Database
 psycopg2-binary==2.9.9
-
-# Data processing
-pandas
-numpy
-
-# Visualization
-streamlit
-plotly
-
-# HTTP and API
-requests
-
-# Testing and utilities
-faker
+streamlit==1.29.0
+plotly==5.18.0
 pytest
+requests==2.31.0
+faker==19.3.1
+pandas==2.0.3
+sqlalchemy==2.0.20
+polars

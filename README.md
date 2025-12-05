@@ -1,5 +1,23 @@
 # Classic Literature Analytics Pipeline
 
+## Table of Contents
+
+- [Project Overview](#project-overview)
+- [Architecture](#architecture)
+- [Data Sources](#data-sources)
+- [Key Components](#key-components)
+- [Setup and Installation](#setup-and-installation)
+- [Usage Guide](#usage-guide)
+- [Undercurrents of Data Engineering](#undercurrents-of-data-engineering)
+- [Testing Strategy](#testing-strategy)
+- [Results and Insights](#results-and-insights)
+- [Team Roles](#team-roles)
+- [Video Walkthrough](#video-walkthrough)
+- [Future Enhancements](#future-enhancements)
+- [References](#references)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
 ## Project Overview
 
 This data engineering project builds a **comprehensive analytics pipeline** for classic literature from Project Gutenberg, featuring real-time Wikipedia pageview tracking, automated text normalization, and interactive dashboards. The system demonstrates enterprise-grade data engineering practices including streaming architectures, cloud storage, machine learning, and containerized deployments.
@@ -20,30 +38,30 @@ This data engineering project builds a **comprehensive analytics pipeline** for 
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        DATA INGESTION LAYER                      │
+│                        DATA INGESTION LAYER                     │
 ├─────────────────────────────────────────────────────────────────┤
-│  Project Gutenberg API  →  S3 (Raw)  →  S3 (Extracted)         │
+│  Project Gutenberg API  →  S3 (Raw)  →  S3 (Extracted)          │
 │  Wikipedia Pageviews API  →  Kafka Producer                     │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│                     TRANSFORMATION LAYER                         │
+│                     TRANSFORMATION LAYER                        │
 ├─────────────────────────────────────────────────────────────────┤
-│  AWS Bedrock (LLM)  →  Metadata Extraction                     │
+│  AWS Bedrock (LLM)  →  Metadata Extraction                      │
 │  Pandas  →  Data Cleaning & Deduplication                       │
 │  Noisy Channel Model  →  Spelling Normalization                 │
 │  Kafka Consumer  →  Stream Processing                           │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│                       STORAGE LAYER                              │
+│                       STORAGE LAYER                             │
 ├─────────────────────────────────────────────────────────────────┤
-│  AWS S3  →  Data Lake (Raw & Processed)                        │
+│  AWS S3  →  Data Lake (Raw & Processed)                         │
 │  PostgreSQL  →  Data Warehouse (Real-time Analytics)            │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│                      ANALYTICS LAYER                             │
+│                      ANALYTICS LAYER                            │
 ├─────────────────────────────────────────────────────────────────┤
 │  Streamlit Dashboard  →  Real-time Visualization                │
 │  Statistical Analysis  →  Model Accuracy Metrics                │
@@ -473,6 +491,53 @@ Output: "Where are you going?"
 
 ---
 
+### 6 Statistical Insights from the Normalization Model (`src/analysis/normalize_spelling_stats.py`)
+This includes a statistical analysis of the noisy-channel spelling normalization model, evaluating how well the system maps Early Modern English spellings to modern forms.
+
+1. **Prior Distribution**
+- 42 modern English expressions modeled
+- Entropy: 4.46 nats → well-spread, diverse distribution
+- Top 10 words = 49.3% of total probability mass
+- Highest-probability forms: you, are, do, will, have
+- Balanced priors help the model choose plausible modern replacements
+
+2. **Channel Model**
+- 42 modern forms, 44 archaic spellings
+- Average 1.05 archaic variants per modern word
+- Mean channel confidence: 0.7966
+- High-confidence (>0.9) mappings: 6.8%
+- Channel is compact but expressive, enabling accurate transformations
+
+3. **Normalization Behavior**
+- Tested on 100 sample texts
+- 00% texts required modifications
+- 565 words analyzed, 135 changed (23.89% change rate)
+- Most frequent corrections:
+  - thou → you
+  - art → are
+  - thee → you
+  - thy → your
+  - dost → do
+- System reliably detects and modernizes archaic spellings
+
+4. **Idempotence**
+- Running the normalizer twice makes no further changes
+- 100% idempotent → stable and predictable behavior
+
+5. **Coverage & Performance**
+- No gaps among high-probability modern words
+- Very fast runtime: ~8.48 million characters/second
+- Suitable for large-scale or batch text normalization
+
+**Summary**
+The statistical results show that the normalization model is:
+- Accurate: Correctly handles frequent archaic spellings
+- Stable: Idempotent across repeated runs
+- Efficient: High throughput for large texts
+- Well-designed: Balanced priors and high-confidence channels
+
+All results are saved in normalization_stats.json for reproducibility.
+
 ## Setup and Installation
 
 ### Prerequisites
@@ -599,46 +664,18 @@ CREATE INDEX idx_book_pageviews_book_id ON book_pageviews(book_id);
 
 The project uses Make for workflow orchestration:
 
-```makefile
-# Data ingestion
-download:
-	python src/ingestion/gutenberg_downloader.py
+### Makefile Commands
 
-extract-metadata:
-	python src/metadata/metadata_extractor.py
+Key workflow shortcuts:
 
-clean-metadata:
-	python src/metadata/metadata_cleaner.py
+- **Data ingestion:** `make download`, `make extract-metadata`, `make clean-metadata`
+- **Streaming pipeline:** `make start-producer`, `make start-consumer`, `make run-dashboard`
+- **Normalization:** `make normalize-shakespeare`, `make train-normalizer`
+- **Analysis:** `analyze-gutenberg`, `analyze-polars`, `normalize-stats`
+- **Testing:** `make test`
+- **Docker:** `make docker-up`, `make docker-down`
 
-# Streaming pipeline
-start-producer:
-	python src/streaming/wiki_producer.py
-
-start-consumer:
-	python src/streaming/wiki_consumer.py
-
-run-dashboard:
-	streamlit run src/streaming/dashboard.py
-
-# Text normalization
-normalize-shakespeare:
-	python src/normalize_spelling.py --input data/FullShakespeare.txt \
-	    --output data/FullShakespeare.normalized.txt
-
-train-normalizer:
-	python src/train_and_test.py --input data/FullShakespeare.txt --split 0.8
-
-# Testing
-test:
-	pytest tests/ -v
-
-# Docker
-docker-up:
-	cd docker && docker-compose up -d
-
-docker-down:
-	cd docker && docker-compose down
-```
+Full command definitions are available in the Makefile.
 
 ### Running the Complete Pipeline
 
@@ -720,6 +757,7 @@ pytest --cov=src tests/
 **Component Independence**:
 ```
 src/
+├── analysis/          # Analysis scripts and model evaluation reports
 ├── ingestion/         # Independent downloader
 ├── metadata/          # Decoupled extraction & cleaning
 ├── streaming/         # Producer, consumer, dashboard as separate services
@@ -1065,14 +1103,16 @@ ORDER BY hour DESC;
 
 ---
 
-## 👥 Team Roles
+## Team Roles
 
 | Team Member | Primary Responsibilities |
 |-------------|-------------------------|
 | **Member 1** | Data Ingestion, AWS Infrastructure, S3 Management |
-| **Member 2** | Streaming Pipeline, Kafka Setup, Dashboard Development |
-| **Member 3** | NLP Modeling, Spelling Normalization, Statistical Analysis |
-| **Member 4** | Database Design, CI/CD, Testing, Documentation |
+| **Member 2** | Metadata Extraction, Data Cleaning, Polars/Pandas Processing |
+| **Member 3** | Streaming Pipeline, Kafka Setup, Dashboard Development |
+| **Member 4** | NLP Modeling, Spelling Normalization, Statistical Analysis |
+| **Member 5** | Database Design, CI/CD, Testing, Documentation |
+
 
 **Collaboration Tools**:
 - GitHub for version control

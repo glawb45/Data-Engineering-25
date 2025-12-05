@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 import io
 
 # Add src to path
@@ -66,10 +66,12 @@ class TestDataFrameOperations:
     def test_remove_minus_eight_rows(self):
         """Test removing rows where book_id ends with '-8'."""
         # Create test DataFrame
-        df = pd.DataFrame({
-            "book_id": ["123-0", "456-8", "789-0", "111-8"],
-            "title": ["Book A", "Book B", "Book C", "Book D"]
-        })
+        df = pd.DataFrame(
+            {
+                "book_id": ["123-0", "456-8", "789-0", "111-8"],
+                "title": ["Book A", "Book B", "Book C", "Book D"],
+            }
+        )
 
         # Apply filter
         mask_minus8 = df["book_id"].astype(str).str.endswith("-8")
@@ -82,12 +84,14 @@ class TestDataFrameOperations:
 
     def test_drop_redundant_columns(self):
         """Test dropping gutenberg_id and language columns."""
-        df = pd.DataFrame({
-            "book_id": ["123", "456"],
-            "gutenberg_id": ["123", "456"],
-            "language": ["en", "en"],
-            "title": ["Book A", "Book B"]
-        })
+        df = pd.DataFrame(
+            {
+                "book_id": ["123", "456"],
+                "gutenberg_id": ["123", "456"],
+                "language": ["en", "en"],
+                "title": ["Book A", "Book B"],
+            }
+        )
 
         # Drop columns
         cols_to_drop = ["gutenberg_id", "language"]
@@ -101,13 +105,15 @@ class TestDataFrameOperations:
 
     def test_apply_clean_release_date(self):
         """Test applying clean_release_date to DataFrame column."""
-        df = pd.DataFrame({
-            "release_date": [
-                "Jan 1, 2020 [EBook #123]",
-                "Feb 2, 2021",
-                "Mar 3, 2019 [Etext #456]"
-            ]
-        })
+        df = pd.DataFrame(
+            {
+                "release_date": [
+                    "Jan 1, 2020 [EBook #123]",
+                    "Feb 2, 2021",
+                    "Mar 3, 2019 [Etext #456]",
+                ]
+            }
+        )
 
         df["release_date"] = df["release_date"].apply(clean_release_date)
 
@@ -117,7 +123,7 @@ class TestDataFrameOperations:
         assert "[Etext" not in df["release_date"].iloc[2]
 
 
-@patch('metadata_cleaner.s3')
+@patch("metadata_cleaner.s3")
 def test_main_integration(mock_s3):
     """Integration test for main function with mocked S3."""
     # Mock CSV data
@@ -128,7 +134,7 @@ def test_main_integration(mock_s3):
 
     # Mock S3 get_object response
     mock_response = {
-        "Body": Mock(read=Mock(return_value=mock_csv_data.encode('utf-8')))
+        "Body": Mock(read=Mock(return_value=mock_csv_data.encode("utf-8")))
     }
     mock_s3.get_object.return_value = mock_response
 
