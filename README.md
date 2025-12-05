@@ -6,7 +6,6 @@
 - [Architecture](#architecture)
 - [Data Sources](#data-sources)
 - [Key Components](#key-components)
-- [Statistical Insights from the Normalization Model](#statistical-insights-from-the-normalization-model)
 - [Setup and Installation](#setup-and-installation)
 - [Usage Guide](#usage-guide)
 - [Undercurrents of Data Engineering](#undercurrents-of-data-engineering)
@@ -492,7 +491,7 @@ Output: "Where are you going?"
 
 ---
 
-### 6 Statistical Insights from the Normalization Model (`src/normalize_spelling.py`)
+### 6 Statistical Insights from the Normalization Model (`src/analysis/normalize_spelling_stats.py`)
 This includes a statistical analysis of the noisy-channel spelling normalization model, evaluating how well the system maps Early Modern English spellings to modern forms.
 
 1. **Prior Distribution**
