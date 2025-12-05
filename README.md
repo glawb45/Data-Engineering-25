@@ -665,46 +665,18 @@ CREATE INDEX idx_book_pageviews_book_id ON book_pageviews(book_id);
 
 The project uses Make for workflow orchestration:
 
-```makefile
-# Data ingestion
-download:
-	python src/ingestion/gutenberg_downloader.py
+### Makefile Commands
 
-extract-metadata:
-	python src/metadata/metadata_extractor.py
+Key workflow shortcuts:
 
-clean-metadata:
-	python src/metadata/metadata_cleaner.py
+- **Data ingestion:** `make download`, `make extract-metadata`, `make clean-metadata`
+- **Streaming pipeline:** `make start-producer`, `make start-consumer`, `make run-dashboard`
+- **Normalization:** `make normalize-shakespeare`, `make train-normalizer`
+- **Analysis:** `analyze-gutenberg`, `analyze-polars`, `normalize-stats`
+- **Testing:** `make test`
+- **Docker:** `make docker-up`, `make docker-down`
 
-# Streaming pipeline
-start-producer:
-	python src/streaming/wiki_producer.py
-
-start-consumer:
-	python src/streaming/wiki_consumer.py
-
-run-dashboard:
-	streamlit run src/streaming/dashboard.py
-
-# Text normalization
-normalize-shakespeare:
-	python src/normalize_spelling.py --input data/FullShakespeare.txt \
-	    --output data/FullShakespeare.normalized.txt
-
-train-normalizer:
-	python src/train_and_test.py --input data/FullShakespeare.txt --split 0.8
-
-# Testing
-test:
-	pytest tests/ -v
-
-# Docker
-docker-up:
-	cd docker && docker-compose up -d
-
-docker-down:
-	cd docker && docker-compose down
-```
+Full command definitions are available in the Makefile.
 
 ### Running the Complete Pipeline
 
