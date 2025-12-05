@@ -187,6 +187,8 @@ Wikipedia API → Kafka Producer → Kafka Topic (book_pageviews)
                                  }
 ```
 
+![Dashboard](SS/Dashboard.png)
+
 **Key Features**:
 - Rotates through featured books
 - Fetches daily pageview data
@@ -566,8 +568,6 @@ print(f"[Consumer ERROR] {e}")
 - Number of unique books
 - Average views per update
 - Last update timestamp
-
-![Dashboard](SS/Dashboard.png)
 
 **Database Auditing**:
 ```sql
