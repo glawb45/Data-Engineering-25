@@ -397,6 +397,10 @@ This includes a statistical analysis of the noisy-channel spelling normalization
   - dost → do
 - System reliably detects and modernizes archaic spellings
 
+We regressed download counts on language. In our polars dataset, we had languages outside of English, so we were able to gain valuable insights on how language effects the number of downloads, as shown below:
+
+![Downloads](SS/Downloads.png)
+
 ## Setup and Installation
 
 ### Prerequisites
@@ -696,12 +700,6 @@ KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
 ![Gutenberg](SS/Gutenberg.png)
 ![Wiki](SS/Wiki.png)
 
-### Statistical Insights
-
-We regressed download counts on language. In our polars dataset, we had languages outside of English, so we were able to gain valuable insights on how language effects the number of downloads, as shown below:
-
-![Downloads](SS/Downloads.png)
-
 ## 👥 Team Roles
 
 | Team Member | Primary Responsibilities |
@@ -756,7 +754,7 @@ This project uses public domain data from Project Gutenberg and Wikipedia. All c
 ## Acknowledgments
 
 Special thanks to:
-- Kedar Vaidya, Zhongyuan Yu, Vishesh Gupta, Javidan Karimli, Eric Ortega Rodriguez, and Patrick for guidance
+- Kedar Vaidya, Zhongyuan Yu, Vishesh Gupta, Javidan Karimli, Eric Ortega Rodriguez, and Patrick Wang for guidance
 
 ---
 
