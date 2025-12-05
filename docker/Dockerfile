@@ -13,14 +13,17 @@ RUN apt-get update && apt-get install -y \
     g++ \
     make \
     libpq-dev \
+    libre2-dev \
     sqlite3 \
     libsqlite3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install pip requirements
+# Install pip requirements with Airflow constraints
 COPY requirements.txt .
 RUN python -m pip install --upgrade pip
-RUN python -m pip install -r requirements.txt
+RUN pip install apache-airflow==2.8.1 \
+    --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.8.1/constraints-3.9.txt"
+RUN pip install -r requirements.txt --no-deps
 
 
 WORKDIR /app

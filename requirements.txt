@@ -1,5 +1,4 @@
-# Apache Airflow and providers (Python 3.9 compatible)
-apache-airflow==2.8.1
+# Airflow providers (Airflow itself installed separately with constraints)
 apache-airflow-providers-amazon
 apache-airflow-providers-postgres
 
