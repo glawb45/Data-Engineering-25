@@ -23,13 +23,17 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 def download_gutenberg_books():
     """Download books from Project Gutenberg to S3"""
     from ingestion.gutenberg_downloader import GutenbergDownloader
+    import os
+
+    # Use environment variable for limit, default to 10 for dev/testing
+    max_books = int(os.getenv('GUTENBERG_MAX_BOOKS', '10'))
 
     downloader = GutenbergDownloader(
         bucket_name="de-27-team4-new",
         prefix="corpus",
         file_type="txt",
         language="en",
-        max_urls=600,
+        max_urls=max_books,
     )
     downloader.run()
 
@@ -90,11 +94,5 @@ with DAG(
         execution_timeout=timedelta(minutes=10),
     )
 
-    # Task 4: Verify pipeline completion
-    verify_task = BashOperator(
-        task_id='verify_completion',
-        bash_command='echo "Gutenberg ingestion pipeline completed successfully!"',
-    )
-
     # Define task dependencies
-    download_task >> extract_task >> clean_task >> verify_task
+    download_task >> extract_task >> clean_task

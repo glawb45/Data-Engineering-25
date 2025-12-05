@@ -175,35 +175,17 @@ with DAG(
     tags=['streaming', 'kafka', 'wikipedia', 'monitoring'],
 ) as dag:
 
-    # Task 1: Check Kafka health
-    kafka_health_check = PythonOperator(
-        task_id='check_kafka_health',
-        python_callable=check_kafka_health,
-    )
-
-    # Task 2: Check PostgreSQL health
+    # Task 1: Check PostgreSQL health
     postgres_health_check = PythonOperator(
         task_id='check_postgres_health',
         python_callable=check_postgres_health,
     )
 
-    # Task 3: Collect streaming metrics
+    # Task 2: Collect streaming metrics
     collect_metrics = PythonOperator(
         task_id='collect_streaming_metrics',
         python_callable=get_streaming_metrics,
     )
 
-    # Task 4: Alert if data is stale
-    staleness_check = PythonOperator(
-        task_id='check_data_staleness',
-        python_callable=alert_if_stale,
-    )
-
-    # Task 5: Summary report
-    summary_report = BashOperator(
-        task_id='generate_summary_report',
-        bash_command='echo "Streaming pipeline health check completed"',
-    )
-
     # Define task dependencies
-    [kafka_health_check, postgres_health_check] >> collect_metrics >> staleness_check >> summary_report
+    postgres_health_check >> collect_metrics

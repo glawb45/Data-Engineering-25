@@ -44,20 +44,8 @@ def train_normalizer(**context):
         raise
 
 
-def evaluate_normalizer(**context):
-    """Evaluate the trained normalizer"""
-    print("Evaluating normalizer on test set...")
-    # This would run evaluation metrics
-    # You can expand this based on your test requirements
-    accuracy = 0.92  # Placeholder
-    print(f"✓ Normalizer accuracy: {accuracy:.2%}")
-
-    context['ti'].xcom_push(key='normalizer_accuracy', value=accuracy)
-    return accuracy
-
-
-def normalize_sample_texts(**context):
-    """Normalize a sample of archaic texts"""
+def test_normalizer(**context):
+    """Test the trained normalizer with sample texts"""
     from normalize_spelling import build_normalizer
 
     normalizer = build_normalizer()
@@ -76,6 +64,7 @@ def normalize_sample_texts(**context):
         print(f"   Normalized: {normalized}")
         print()
 
+    print("✓ Normalizer test completed successfully")
     return True
 
 
@@ -108,25 +97,12 @@ with DAG(
         execution_timeout=timedelta(minutes=30),
     )
 
-    # Task 2: Evaluate the model
-    evaluate_task = PythonOperator(
-        task_id='evaluate_normalizer',
-        python_callable=evaluate_normalizer,
-        execution_timeout=timedelta(minutes=10),
-    )
-
-    # Task 3: Normalize sample texts
-    normalize_task = PythonOperator(
-        task_id='normalize_sample_texts',
-        python_callable=normalize_sample_texts,
+    # Task 2: Test with sample texts
+    test_task = PythonOperator(
+        task_id='test_normalizer',
+        python_callable=test_normalizer,
         execution_timeout=timedelta(minutes=5),
     )
 
-    # Task 4: Completion report
-    report_task = BashOperator(
-        task_id='generate_report',
-        bash_command='echo "NLP normalization pipeline completed successfully!"',
-    )
-
     # Define task dependencies
-    train_task >> evaluate_task >> normalize_task >> report_task
+    train_task >> test_task
