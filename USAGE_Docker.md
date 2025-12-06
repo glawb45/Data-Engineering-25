@@ -1,5 +1,7 @@
 ### Building and running your application
 
+**Docker Compose Stack** (`docker/docker-compose.yml`):
+
 When you're ready, start your application by running:
 `docker compose up --d`.
 

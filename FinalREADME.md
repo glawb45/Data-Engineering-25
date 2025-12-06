@@ -1,6 +1,21 @@
 # Classic Literature Analytics Pipeline
 
-[![Tests](https://github.com/glawb45/Data-Engineering-25/actions/workflows/test.yml/badge.svg)](https://github.com/glawb45/Data-Engineering-25/actions/workflows/test.yml)
+## Table of Contents
+
+- [Project Overview](#project-overview)
+- [Architecture](#architecture)
+- [Data Sources](#data-sources)
+- [Key Components](#key-components)
+- [Setup and Installation](#setup-and-installation)
+- [Usage Guide](#usage-guide)
+- [Undercurrents of Data Engineering](#undercurrents-of-data-engineering)
+- [Testing Strategy](#testing-strategy)
+- [Results and Insights](#results-and-insights)
+- [Team Roles](#team-roles)
+- [Future Enhancements](#future-enhancements)
+- [References](#references)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
 
 ## Project Overview
 
@@ -189,6 +204,8 @@ Wikipedia API → Kafka Producer → Kafka Topic (book_pageviews)
                                  }
 ```
 
+![Dashboard](SS/Dashboard.png)
+
 **Key Features**:
 - Rotates through featured books
 - Fetches daily pageview data
@@ -368,6 +385,48 @@ Output: "Where are you going?"
 
 ---
 
+### 6. Statistical Insights from the Normalization Model (`src/analysis/normalize_spelling_stats.py`)
+This includes a statistical analysis of the noisy-channel spelling normalization model, evaluating how well the system maps Early Modern English spellings to modern forms.
+
+1. **Prior Distribution**
+- 42 modern English expressions modeled
+- Entropy: 4.46 nats → well-spread, diverse distribution
+- Top 10 words = 49.3% of total probability mass
+- Highest-probability forms: you, are, do, will, have
+- Balanced priors help the model choose plausible modern replacements
+
+2. **Channel Model**
+- 42 modern forms, 44 archaic spellings
+- Average 1.05 archaic variants per modern word
+- Mean channel confidence: 0.7966
+- High-confidence (>0.9) mappings: 6.8%
+- Channel is compact but expressive, enabling accurate transformations
+
+3. **Normalization Behavior**
+- Tested on 100 sample texts
+- 100% texts required modifications
+- 565 words analyzed, 135 changed (23.89% change rate)
+- Most frequent corrections:
+  - thou → you
+  - art → are
+  - thee → you
+  - thy → your
+  - dost → do
+- System reliably detects and modernizes archaic spellings
+
+The statistical results show that the normalization model is:
+- Accurate: Correctly handles frequent archaic spellings
+- Stable: Idempotent across repeated runs
+- Efficient: High throughput for large texts
+- Well-designed: Balanced priors and high-confidence channelss
+
+### 7.Analysis of Gutenberg using Polars
+ (`src/analysis/gutenberg_polars_analysis.py`)
+
+We regressed download counts on language. In our polars dataset, we had languages outside of English, so we were able to gain valuable insights on how language effects the number of downloads, as shown below:
+
+![Downloads](SS/Downloads.png)
+
 ## Setup and Installation
 
 ### Prerequisites
@@ -378,6 +437,112 @@ Output: "Where are you going?"
 - Apache Kafka (or Docker image)
 - Apache Airflow
 
+### Environment Setup
+
+1. **Clone Repository**:
+   ```bash
+   git clone https://github.com/your-team/nlp_final_project.git
+   cd nlp_final_project
+   ```
+
+2. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+   Key packages:
+   ```
+   boto3>=1.28.0          # AWS SDK
+   kafka-python>=2.0.2    # Kafka client
+   pandas>=2.0.0          # Data processing
+   streamlit>=1.28.0      # Dashboard
+   plotly>=5.17.0         # Visualization
+   sqlalchemy>=2.0.0      # Database ORM
+   psycopg2-binary>=2.9.9 # PostgreSQL driver
+   requests>=2.31.0       # HTTP client
+   ```
+
+3. **Configure AWS Credentials**:
+   ```bash
+   aws configure
+   # Enter: Access Key ID, Secret Access Key, Region (us-east-1)
+   ```
+
+4. **Set Environment Variables**:
+   ```bash
+   export KAFKA_BOOTSTRAP_SERVERS="localhost:9092"
+   export KAFKA_TOPIC="book_pageviews"
+   export DATABASE_URL="postgresql://books_user:books_password@localhost:5432/books_db"
+   ```
+
+## Usage Guide
+
+### Makefile Commands
+
+The project uses Make for workflow orchestration:
+
+### Makefile Commands
+
+Key workflow shortcuts:
+
+- **Data ingestion:** `make download`, `make extract-metadata`, `make clean-metadata`
+- **Streaming pipeline:** `make start-producer`, `make start-consumer`, `make run-dashboard`
+- **Normalization:** `make normalize-shakespeare`, `make train-normalizer`
+- **Analysis:** `analyze-gutenberg`, `analyze-polars`, `normalize-stats`
+- **Testing:** `make test`
+- **Docker:** `make docker-up`, `make docker-down`
+
+Full command definitions are available in the Makefile.
+
+### Running the Complete Pipeline
+
+**Step 1: Data Ingestion**
+```bash
+make download  # Downloads 600 books to S3 (~2 hours)
+```
+
+**Step 2: Metadata Extraction**
+```bash
+make extract-metadata  # AI extraction with Bedrock
+make clean-metadata     # Clean and deduplicate
+```
+
+**Step 3: Start Streaming Pipeline**
+```bash
+# Terminal 1: Start Kafka producer
+make start-producer
+
+# Terminal 2: Start Kafka consumer
+make start-consumer
+
+# Terminal 3: Launch dashboard
+make run-dashboard
+# Visit http://localhost:8501
+```
+
+**Step 4: Text Normalization (Optional)**
+```bash
+make normalize-shakespeare
+make train-normalizer
+```
+
+### Testing
+
+**Run All Tests**:
+```bash
+make test
+
+# Or specific test files
+pytest tests/test_metadata_extractor.py -v
+pytest tests/test_normalize_spelling.py -v
+```
+
+**Test Coverage**:
+```bash
+pytest --cov=src tests/
+```
+
+---
 
 ## Testing Strategy
 
@@ -420,7 +585,10 @@ def test_sentence_normalization(self):
 ### CI/CD Pipeline
 
 **GitHub Actions** (`.github/workflows/test.yml`)
-- YML file to use Github Actions
+
+YML file to use Github Actions
+
+[![Tests](https://github.com/glawb45/Data-Engineering-25/actions/workflows/test.yml/badge.svg)](https://github.com/glawb45/Data-Engineering-25/actions/workflows/test.yml)
 
 **Benefits**:
 - Automated testing on every commit
@@ -452,7 +620,7 @@ def test_sentence_normalization(self):
 - **Streaming Reads**: Processes S3 objects without loading into memory
 - **Connection Pooling**: SQLAlchemy connection reuse
 
-**Evidence**: Successfully processed 600 books (~2GB) with constant memory usage (<500MB).
+GB) with constant memory usage (<500MB).
 
 ### 2. **Modularity**
 
@@ -667,13 +835,7 @@ KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
 ![Gutenberg](SS/Gutenberg.png)
 ![Wiki](SS/Wiki.png)
 
-### Statistical Insights
-
-We regressed download counts on language. In our polars dataset, we had languages outside of English, so we were able to gain valuable insights on how language effects the number of downloads, as shown below:
-
-![Downloads](SS/Downloads.heic)
-
-## 👥 Team Roles
+## Team Roles
 
 | Team Member | Primary Responsibilities |
 |-------------|-------------------------|
@@ -727,10 +889,10 @@ This project uses public domain data from Project Gutenberg and Wikipedia. All c
 ## Acknowledgments
 
 Special thanks to:
-- Kedar Vaidya, Zhongyuan Yu, Vishesh Gupta, Javidan Karimli, Eric Ortega Rodriguez, and Patrick for guidance
+- Kedar Vaidya, Zhongyuan Yu, Vishesh Gupta, Javidan Karimli, Eric Ortega Rodriguez, and Patrick Wang for guidance
 
 ---
 
 **Repository**: [https://github.com/glawb45/Data-Engineering-25](https://github.com/glawb45/Data-Engineering-25)
 
-**Last Updated**: December 4, 2024
+**Last Updated**: December 5, 2024
